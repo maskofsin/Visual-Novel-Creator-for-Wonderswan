@@ -6,9 +6,9 @@ This clean export intentionally does not include game assets, ROM files, local b
 
 ## Contents
 
-- `wsc-vn-studio.html` â€” the standalone editor.
-- `runtime/` â€” WonderSwan Color C runtime and JSON converter.
-- `examples/` â€” tiny asset-free starter project.
+- `wsc-vn-studio.html`  the standalone editor.
+- `runtime/`  WonderSwan Color C runtime and JSON converter.
+- `examples/`  tiny asset-free starter project.
 
 Users should install Wonderful Toolchain, MSYS2/Python/Pillow, and Cygnals from official sources rather than committing them here.
 
@@ -21,7 +21,6 @@ This would not be possible without:
 
 Wonderful Toolchain
 https://wonderful.asie.pl/
-https://wonderful.asie.pl/docs/target/wswan/
 
 Cygnals
 https://github.com/joffb/cygnals
