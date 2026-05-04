@@ -1,4 +1,4 @@
-# WSC VN Creator
+# Wonderswan Color Visual Novel Creator
 
 A browser-based visual novel editor plus WonderSwan Color runtime.
 
@@ -20,9 +20,11 @@ Follow [`SETUP.md`](SETUP.md) for the full step-by-step installation and ROM bui
 This would not be possible without:
 
 Wonderful Toolchain
+
 https://wonderful.asie.pl/
 
 Cygnals
+
 https://github.com/joffb/cygnals
 
 ## Closing
