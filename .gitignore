@@ -1,0 +1,34 @@
+# Ignore local builds and private game content
+runtime/build/
+runtime/music/*.fur
+runtime/*.wsc
+runtime/*.elf
+runtime/*.map
+runtime/src/game_data.c
+runtime/src/game_data.h
+runtime/.venv/
+runtime/__pycache__/
+runtime/tools/__pycache__/
+*.pyc
+
+# User/project exports and assets
+assets/
+Assets/
+json/
+*.wscvn.json
+!examples/*.wscvn.json
+*.wsc
+*.ws
+*.wsr
+*.sav
+*.srm
+*.7z
+*.zip
+*.rar
+
+# Toolchains / external downloads
+wonderful/
+Wonderful/
+msys64/
+runtime/third_party/cygnals/
+!runtime/third_party/README.md

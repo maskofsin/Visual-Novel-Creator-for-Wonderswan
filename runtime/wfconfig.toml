@@ -1,0 +1,11 @@
+[game]
+name = "Untitled Game"
+
+[cartridge]
+name = "Untitled Game"
+publisher_id = 0x00
+game_id = 1
+game_version = 0
+save_type = "SRAM_256KB"
+color = true
+rom_banks = 128

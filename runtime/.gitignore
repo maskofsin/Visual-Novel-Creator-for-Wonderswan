@@ -1,0 +1,9 @@
+build/
+*.wsc
+*.elf
+*.map
+src/game_data.c
+src/game_data.h
+__pycache__/
+*.pyc
+.venv/
