@@ -32,7 +32,7 @@ A convenient Windows path is:
 
 ```bash
 cd /opt/wonderful/projects
-git clone https://github.com/YOUR_NAME/YOUR_REPO.git wsc-vn-creator
+git clone https://github.com/maskofsin/Visual-Novel-Creator-for-Wonderswan.git wsc-vn-creator
 cd wsc-vn-creator
 ```
 
