@@ -23,6 +23,7 @@ Wonderful Toolchain
 
 https://wonderful.asie.pl/
 
+
 Cygnals
 
 https://github.com/joffb/cygnals
@@ -41,7 +42,7 @@ It's now playable with some issues to iron out - mostly script adaptation to the
 
 It's my attempt to talk about a serious and sensitive topic - mental health.
 
-If you are struggling too, please know you're not alone.
+If you are struggling, please know you're not alone.
 
 Seek professional help. I will leave my e-mail at the end if you want to say something.
 
