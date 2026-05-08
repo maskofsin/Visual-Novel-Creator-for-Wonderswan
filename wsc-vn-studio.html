@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WSC VN Studio â€” WonderSwan Color Visual Novel Editor</title>
+<title>WSC VN Studio — WonderSwan Color Visual Novel Editor</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -28,6 +28,11 @@
   --ok: #00cc66;
   --wsc-w: 448px;
   --wsc-h: 288px;
+  --ui-font: 'Space Grotesk', sans-serif;
+  --mono-font: 'JetBrains Mono', monospace;
+  --emoji-font: 'Noto Color Emoji', 'Twemoji', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Emoji', 'Noto Sans Symbols 2', 'Noto Sans Symbols', sans-serif;
+  --emoji-ui-font: 'Noto Color Emoji', 'Twemoji', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Emoji', 'Noto Sans Symbols 2', 'Noto Sans Symbols', 'Space Grotesk', sans-serif;
+  --emoji-mono-font: 'Noto Color Emoji', 'Twemoji', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Emoji', 'Noto Sans Symbols 2', 'Noto Sans Symbols', 'JetBrains Mono', monospace;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,16 +41,19 @@ html, body { height: 100%; }
 body {
   background: var(--bg0);
   color: var(--text0);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--ui-font);
   font-size: 13px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.mono { font-family: 'JetBrains Mono', monospace; }
+.mono { font-family: var(--mono-font); }
+.i, .icon, .tree-icon, .big-icon, .big {
+  font-family: var(--emoji-font);
+}
 
-/* â”€â”€ TOPBAR â”€â”€ */
+/* ── TOPBAR ── */
 #topbar {
   display: flex;
   align-items: center;
@@ -126,7 +134,7 @@ body {
 .tbtn.success { background: var(--accent3); color: #003322; border-color: var(--accent3); font-weight: 700; }
 .tbtn.ghost { background: transparent; }
 
-/* â”€â”€ MAIN LAYOUT â”€â”€ */
+/* ── MAIN LAYOUT ── */
 #main {
   display: grid;
   grid-template-columns: 260px 1fr 320px;
@@ -134,7 +142,7 @@ body {
   overflow: hidden;
 }
 
-/* â•â• LEFT: STRUCTURE TREE â•â• */
+/* ══ LEFT: STRUCTURE TREE ══ */
 #tree-panel {
   background: var(--bg1);
   border-right: 1px solid var(--border);
@@ -283,7 +291,7 @@ body {
 .add-btn:hover { background: var(--bg3); color: var(--text0); border-color: var(--text3); }
 .add-btn .i { font-size: 13px; margin: 0 0 2px; line-height: 1; }
 
-/* â•â• CENTER â•â• */
+/* ══ CENTER ══ */
 #center {
   display: flex;
   flex-direction: column;
@@ -495,7 +503,7 @@ body {
 }
 .pc-btn:hover { background: var(--bg3); color: var(--text0); }
 
-/* â”€â”€ TABS â”€â”€ */
+/* ── TABS ── */
 #editor-tabs {
   display: flex;
   background: var(--bg1);
@@ -509,7 +517,7 @@ body {
   background: none;
   border: none;
   color: var(--text2);
-  font-family: inherit;
+  font-family: var(--emoji-ui-font);
   font-size: 12px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -708,7 +716,7 @@ select option { background: var(--bg2); }
   background: var(--bg2);
   border: 1px solid var(--border);
   color: var(--text2);
-  font-family: inherit;
+  font-family: var(--emoji-ui-font);
   font-size: 11px;
   cursor: pointer;
   border-radius: 20px;
@@ -917,7 +925,7 @@ select option { background: var(--bg2); }
   background: var(--bg2);
   border: 1px solid var(--border);
   color: var(--text1);
-  font-family: inherit;
+  font-family: var(--emoji-ui-font);
   font-size: 11px;
   cursor: pointer;
   border-radius: 3px;
@@ -929,7 +937,7 @@ input[type=range] { accent-color: var(--brand); }
 .range-group { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
 .range-group input[type=range] { width: 90px; }
 
-/* â•â• RIGHT PANEL â•â• */
+/* ══ RIGHT PANEL ══ */
 #right-panel {
   background: var(--bg1);
   border-left: 1px solid var(--border);
@@ -1197,7 +1205,7 @@ input[type=range] { accent-color: var(--brand); }
 </head>
 <body>
 
-<!-- â•â• TOPBAR â•â• -->
+<!-- ══ TOPBAR ══ -->
 <div id="topbar">
   <div id="logo"><div class="mark"></div> WSC VN Studio <span class="v mono">v2.0</span></div>
   <div class="top-sep"></div>
@@ -1208,14 +1216,14 @@ input[type=range] { accent-color: var(--brand); }
   <button class="tbtn ghost" onclick="openBulkImporter()">Bulk Import</button>
   <button class="tbtn ghost" onclick="openBatchTools()">Batch Tools</button>
   <button class="tbtn ghost" onclick="showPreflightTools()">Preflight</button>
-  <button class="tbtn ghost" onclick="loadProjectFile()">â¤’ Import Project</button>
-  <button class="tbtn" onclick="exportProject()">â¤“ Export JSON</button>
+  <button class="tbtn ghost" onclick="loadProjectFile()">⤒ Import Project</button>
+  <button class="tbtn" onclick="exportProject()">⤓ Export JSON</button>
   <button class="tbtn" onclick="exportToWonderfulFolder()">Export to Wonderful</button>
-  <button class="tbtn primary" onclick="buildROMGuide()">â–¶ Build ROM Guide</button>
+  <button class="tbtn primary" onclick="buildROMGuide()">▶ Build ROM Guide</button>
   <input type="file" id="project-load-input" accept=".json" style="display:none" onchange="handleProjectLoad(event)">
 </div>
 
-<!-- â•â• MAIN â•â• -->
+<!-- ══ MAIN ══ -->
 <div id="main">
 
   <!-- LEFT: STRUCTURE TREE -->
@@ -1223,8 +1231,8 @@ input[type=range] { accent-color: var(--brand); }
     <div class="panel-head">
       <div class="panel-head-title">Game Structure</div>
       <div class="panel-head-actions">
-        <button class="ph-btn" onclick="expandAll()" title="Expand all">âŠž</button>
-        <button class="ph-btn" onclick="collapseAll()" title="Collapse all">âŠŸ</button>
+        <button class="ph-btn" onclick="expandAll()" title="Expand all">⊞</button>
+        <button class="ph-btn" onclick="collapseAll()" title="Collapse all">⊟</button>
       </div>
     </div>
     <div style="padding:8px;border-bottom:1px solid var(--border)">
@@ -1233,11 +1241,11 @@ input[type=range] { accent-color: var(--brand); }
     </div>
     <div id="tree"></div>
     <div class="tree-add">
-      <button class="add-btn" onclick="addNode('chapter')"><span class="i">ðŸ“–</span>Chapter</button>
-      <button class="add-btn" onclick="addNode('scene')"><span class="i">ðŸŽ¬</span>Scene</button>
-      <button class="add-btn" onclick="addNode('choice')"><span class="i">â‘‚</span>Choice</button>
-      <button class="add-btn" onclick="addNode('branch')"><span class="i">â‡„</span>Branch</button>
-      <button class="add-btn" onclick="addNode('investigation')"><span class="i">ðŸ”Ž</span>Investig.</button>
+      <button class="add-btn" onclick="addNode('chapter')"><span class="i">📖</span>Chapter</button>
+      <button class="add-btn" onclick="addNode('scene')"><span class="i">🎬</span>Scene</button>
+      <button class="add-btn" onclick="addNode('choice')"><span class="i">⑂</span>Choice</button>
+      <button class="add-btn" onclick="addNode('branch')"><span class="i">⇄</span>Branch</button>
+      <button class="add-btn" onclick="addNode('investigation')"><span class="i">🔎</span>Investig.</button>
     </div>
   </div>
 
@@ -1247,9 +1255,9 @@ input[type=range] { accent-color: var(--brand); }
     <!-- PREVIEW -->
     <div id="preview-wrap">
       <div id="preview-label">
-        <span class="mono">WSC <span class="green">224Ã—144</span></span>
+        <span class="mono">WSC <span class="green">224×144</span></span>
         <span class="mono">CPU: <span class="green">V30MZ 3.072MHz</span></span>
-        <span class="mono">Scale: Ã—2</span>
+        <span class="mono">Scale: ×2</span>
       </div>
       <div id="wsc">
         <canvas id="wsc-bg" width="224" height="144"></canvas>
@@ -1268,40 +1276,40 @@ input[type=range] { accent-color: var(--brand); }
           <div id="wsc-textbox-bg"></div>
           <div id="wsc-speaker-box">??</div>
           <div id="wsc-dialogue">Select a node from the tree...</div>
-          <div id="wsc-arrow">â–¼</div>
+          <div id="wsc-arrow">▼</div>
         </div>
       </div>
       <div id="preview-controls">
-        <button class="pc-btn" onclick="simulateStart()">â–¶ Run from Start</button>
-        <button class="pc-btn" onclick="resetFlags()">â†º Reset Flags</button>
+        <button class="pc-btn" onclick="simulateStart()">▶ Run from Start</button>
+        <button class="pc-btn" onclick="resetFlags()">↺ Reset Flags</button>
       </div>
     </div>
 
     <!-- TABS -->
     <div id="editor-tabs">
-      <button class="etab active" data-tab="content" onclick="switchTab('content')">ðŸ“ Content</button>
-      <button class="etab" data-tab="visual" onclick="switchTab('visual')">ðŸŽ¨ Visual</button>
-      <button class="etab" data-tab="foreground" onclick="switchTab('foreground')">â–£ Foreground</button>
-      <button class="etab" data-tab="characters" onclick="switchTab('characters')">ðŸ‘¤ Characters</button>
-      <button class="etab" data-tab="audio" onclick="switchTab('audio')">ðŸŽµ Audio</button>
-      <button class="etab" data-tab="flags" onclick="switchTab('flags')">ðŸš© Flags / Vars</button>
-      <button class="etab" data-tab="assets" onclick="switchTab('assets')">ðŸ“¦ Assets</button>
+      <button class="etab active" data-tab="content" onclick="switchTab('content')">📝 Content</button>
+      <button class="etab" data-tab="visual" onclick="switchTab('visual')">🎨 Visual</button>
+      <button class="etab" data-tab="foreground" onclick="switchTab('foreground')">▣ Foreground</button>
+      <button class="etab" data-tab="characters" onclick="switchTab('characters')">👤 Characters</button>
+      <button class="etab" data-tab="audio" onclick="switchTab('audio')">🎵 Audio</button>
+      <button class="etab" data-tab="flags" onclick="switchTab('flags')">🚩 Flags / Vars</button>
+      <button class="etab" data-tab="assets" onclick="switchTab('assets')">📦 Assets</button>
     </div>
 
     <!-- EDITOR BODY -->
     <div id="editor-body">
 
-      <!-- â•â•â• CONTENT TAB â•â•â• -->
+      <!-- ═══ CONTENT TAB ═══ -->
       <div class="tab-panel active" id="tab-content">
         <div id="content-empty" class="empty-state">
-          <div class="big-icon">ðŸ“</div>
+          <div class="big-icon">📝</div>
           <div class="msg">No node selected</div>
           <div class="sub">Pick a node from the tree on the left.</div>
         </div>
 
         <div id="content-editor" style="display:none">
           <div class="section">
-            <div class="section-title"><span><span class="icon">â—</span>Node Settings</span></div>
+            <div class="section-title"><span><span class="icon">●</span>Node Settings</span></div>
             <div class="field-group">
               <label>Node Name</label>
               <input type="text" id="f-name" oninput="setProp('name',this.value)">
@@ -1309,7 +1317,7 @@ input[type=range] { accent-color: var(--brand); }
           </div>
 
           <div class="section node-title-only">
-            <div class="section-title"><span><span class="icon">ðŸŽ¬</span>Title Screen</span></div>
+            <div class="section-title"><span><span class="icon">🎬</span>Title Screen</span></div>
             <div class="grid2">
               <div class="field-group">
                 <label>Main Title</label>
@@ -1325,12 +1333,12 @@ input[type=range] { accent-color: var(--brand); }
             <div class="field-group">
             <label>Menu Options <span class="tag tag-info">separate with |</span></label>
               <input type="text" id="f-title-menu" placeholder="New Game|Load|Gallery" oninput="setProp('titleMenu',this.value)">
-              <div class="hint">Menu items shown below title. Use â€œGalleryâ€ to open the unlocked CG viewer. Max 4 items, 12 chars each.</div>
+              <div class="hint">Menu items shown below title. Use “Gallery” to open the unlocked CG viewer. Max 4 items, 12 chars each.</div>
             </div>
           </div>
 
           <div class="section node-scene-only">
-            <div class="section-title"><span><span class="icon">ðŸ’¬</span>Dialogue</span></div>
+            <div class="section-title"><span><span class="icon">💬</span>Dialogue</span></div>
             <div class="spec-info">
               <strong>WSC Text Limits:</strong> ~100 chars per textbox. Thin decorations no longer reduce the usable text area.
               Use <code>{pause}</code> to split into multiple textboxes.
@@ -1367,12 +1375,12 @@ input[type=range] { accent-color: var(--brand); }
           </div>
 
           <div class="section node-choice-only">
-            <div class="section-title"><span><span class="icon">â‘‚</span>Choices</span></div>
+            <div class="section-title"><span><span class="icon">⑂</span>Choices</span></div>
             <div class="spec-info">
               Each option can jump to a node, modify flags, and be conditional.
             </div>
             <div class="field-group">
-              <label>Prompt (optional â€” shown above choices)</label>
+              <label>Prompt (optional — shown above choices)</label>
               <input type="text" id="f-choice-prompt" maxlength="80" oninput="setProp('prompt',this.value)">
             </div>
             <div id="choices-list"></div>
@@ -1380,23 +1388,23 @@ input[type=range] { accent-color: var(--brand); }
           </div>
 
           <div class="section node-branch-only">
-            <div class="section-title"><span><span class="icon">â‡„</span>Conditional Branch</span></div>
+            <div class="section-title"><span><span class="icon">⇄</span>Conditional Branch</span></div>
             <div class="spec-info">
               Branch evaluates conditions in order. First matching condition wins.
-              Use for flag-based routing (e.g. affection &gt;= 5 â†’ good end).
+              Use for flag-based routing (e.g. affection &gt;= 5 → good end).
             </div>
             <div id="branches-list"></div>
             <button class="add-choice-btn" onclick="addBranch()">+ Add Condition</button>
             <div class="field-group" style="margin-top:10px">
               <label>Default target (if no condition matches)</label>
               <select id="f-default-target" onchange="setProp('defaultTarget',this.value)">
-                <option value="">â€” next in order â€”</option>
+                <option value="">— next in order —</option>
               </select>
             </div>
           </div>
 
           <div class="section node-investigation-only">
-            <div class="section-title"><span><span class="icon">ðŸ”Ž</span>Investigation Hotspots</span></div>
+            <div class="section-title"><span><span class="icon">🔎</span>Investigation Hotspots</span></div>
             <div class="spec-info">
               Player moves a cursor over the background and presses A. Required hotspots advance after all are inspected; B exits to the default target.
             </div>
@@ -1405,17 +1413,17 @@ input[type=range] { accent-color: var(--brand); }
             <div class="field-group" style="margin-top:10px">
               <label>Default / completion target</label>
               <select id="f-investigation-target" onchange="setProp('defaultTarget',this.value)">
-                <option value="">â€” next in order â€”</option>
+                <option value="">— next in order —</option>
               </select>
             </div>
           </div>
 
           <div class="section node-scene-only">
-            <div class="section-title"><span><span class="icon">â†’</span>Navigation</span></div>
+            <div class="section-title"><span><span class="icon">→</span>Navigation</span></div>
             <div class="field-group">
               <label>Next Node</label>
               <select id="f-next" onchange="setProp('next',this.value)">
-                <option value="">â€” next scene automatically â€”</option>
+                <option value="">— next scene automatically —</option>
               </select>
               <div class="hint">Leave empty to go to next scene in the chapter.</div>
             </div>
@@ -1429,12 +1437,12 @@ input[type=range] { accent-color: var(--brand); }
         </div>
       </div>
 
-      <!-- â•â•â• VISUAL TAB â•â•â• -->
+      <!-- ═══ VISUAL TAB ═══ -->
       <div class="tab-panel" id="tab-visual">
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸ–¼</span>Background</span></div>
+          <div class="section-title"><span><span class="icon">🖼</span>Background</span></div>
           <div class="spec-info">
-            <strong>Background limits:</strong> <span class="limit">224Ã—144 px</span>, 4bpp indexed (<span class="limit">16 colors max</span>), 8px tile-aligned.
+            <strong>Background limits:</strong> <span class="limit">224×144 px</span>, 4bpp indexed (<span class="limit">16 colors max</span>), 8px tile-aligned.
             Import a prepared PNG or use a preset. For best results, prepare assets with wsc_image_prep.py and keep them as PNGs.
           </div>
           <div class="field-group">
@@ -1458,7 +1466,7 @@ input[type=range] { accent-color: var(--brand); }
         </div>
 
         <div class="section">
-          <div class="section-title"><span><span class="icon">âš¡</span>Quick Visual Presets</span></div>
+          <div class="section-title"><span><span class="icon">⚡</span>Quick Visual Presets</span></div>
           <div class="spec-info">
             WSC-safe authoring: backgrounds, characters, dialogue, choices, flags, saves, and tracker music export to ROM.
           </div>
@@ -1500,13 +1508,13 @@ input[type=range] { accent-color: var(--brand); }
                 </div>
               </div>
               <div class="pill-btns" id="palcycle-presets" style="margin-top:8px"></div>
-              <div class="hint">Tip: cycle 2â€“4 colors (e.g., water shimmer). Targets the imported BG image palette (16 colors).</div>
+              <div class="hint">Tip: cycle 2–4 colors (e.g., water shimmer). Targets the imported BG image palette (16 colors).</div>
             </div>
           </div>
         </div>
 
         <div class="section">
-          <div class="section-title"><span><span class="icon">â–­</span>Runtime Textbox <span class="tag tag-info">hardware-safe</span></span></div>
+          <div class="section-title"><span><span class="icon">▭</span>Runtime Textbox <span class="tag tag-info">hardware-safe</span></span></div>
           <div class="spec-info">
             The ROM can draw a readable textbox and speaker-name box over full-screen art. Use <strong>Dark</strong> for new full-screen backgrounds, or <strong>None</strong> only when the art already includes a baked text area.
           </div>
@@ -1536,12 +1544,12 @@ input[type=range] { accent-color: var(--brand); }
         </div>
       </div>
 
-      <!-- â•â•â• FOREGROUND TAB â•â•â• -->
+      <!-- ═══ FOREGROUND TAB ═══ -->
       <div class="tab-panel" id="tab-foreground">
         <div class="section">
-          <div class="section-title"><span><span class="icon">â–£</span>Foreground / Group Shot Layer <span class="tag tag-info">hardware-safe</span></span></div>
+          <div class="section-title"><span><span class="icon">▣</span>Foreground / Group Shot Layer <span class="tag tag-info">hardware-safe</span></span></div>
           <div class="spec-info">
-            Optional transparent <span class="limit">224Ã—144 PNG</span> drawn over the background and clipped above the textbox. Export uses up to <span class="limit">8 tile palettes</span> for roughly 120 shared foreground colors, and optional talk/blink foregrounds become tiny tile patches.
+            Optional transparent <span class="limit">224×144 PNG</span> drawn over the background and clipped above the textbox. Export uses up to <span class="limit">8 tile palettes</span> for roughly 120 shared foreground colors, and optional talk/blink foregrounds become tiny tile patches.
           </div>
           <div class="field-group">
             <label>Foreground Image</label>
@@ -1565,12 +1573,12 @@ input[type=range] { accent-color: var(--brand); }
         </div>
       </div>
 
-      <!-- â•â•â• CHARACTERS TAB â•â•â• -->
+      <!-- ═══ CHARACTERS TAB ═══ -->
       <div class="tab-panel" id="tab-characters">
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸ‘¤</span>Main Character on Scene</span></div>
+          <div class="section-title"><span><span class="icon">👤</span>Main Character on Scene</span></div>
           <div class="spec-info">
-            <strong>Sprites:</strong> <span class="limit">96Ã—128 px max</span>, 4bpp. ROM export can use <span class="limit">dual tile palettes</span> for about 30 visible colors per character when the art separates cleanly by area.<br>
+            <strong>Sprites:</strong> <span class="limit">96×128 px max</span>, 4bpp. ROM export can use <span class="limit">dual tile palettes</span> for about 30 visible colors per character when the art separates cleanly by area.<br>
             <strong>Tip:</strong> Name files <code>name_expression.png</code> (e.g. <code>yuna_happy.png</code>) for organization.
           </div>
           <div class="spec-info">
@@ -1613,7 +1621,7 @@ input[type=range] { accent-color: var(--brand); }
         </div>
 
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸ‘¥</span>Second Character</span></div>
+          <div class="section-title"><span><span class="icon">👥</span>Second Character</span></div>
           <div class="spec-info" id="char2-role-hint">For Blink/Talking, pick the alternate frame here and set Position to None. Otherwise, this draws a second visible character.</div>
           <div class="field-group">
             <label>Character</label>
@@ -1622,16 +1630,16 @@ input[type=range] { accent-color: var(--brand); }
           <div class="field-group">
             <label>Position</label>
             <div class="pill-btns" id="char2-pos-picker">
-              <button class="pill-btn" data-pos2="none">âœ• None</button>
-              <button class="pill-btn" data-pos2="left">â—€ Left</button>
-              <button class="pill-btn" data-pos2="center">â—† Center</button>
-              <button class="pill-btn" data-pos2="right">â–¶ Right</button>
+              <button class="pill-btn" data-pos2="none">✕ None</button>
+              <button class="pill-btn" data-pos2="left">◀ Left</button>
+              <button class="pill-btn" data-pos2="center">◆ Center</button>
+              <button class="pill-btn" data-pos2="right">▶ Right</button>
             </div>
           </div>
         </div>
 
         <div class="section" id="char3-section">
-          <div class="section-title"><span><span class="icon">â—‰</span>Blink Frame for Talk + Blink</span></div>
+          <div class="section-title"><span><span class="icon">◉</span>Blink Frame for Talk + Blink</span></div>
           <div class="spec-info">Only used when Hardware Animation is <strong>Talk + Blink</strong>. Pick the closed-eye/blink sprite here.</div>
           <div class="field-group">
             <label>Blink Character Frame</label>
@@ -1640,10 +1648,10 @@ input[type=range] { accent-color: var(--brand); }
         </div>
       </div>
 
-      <!-- â•â•â• AUDIO TAB â•â•â• -->
+      <!-- ═══ AUDIO TAB ═══ -->
       <div class="tab-panel" id="tab-audio">
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸŽµ</span>Music Control at This Scene</span></div>
+          <div class="section-title"><span><span class="icon">🎵</span>Music Control at This Scene</span></div>
           <div class="spec-info">
             <strong>Music is persistent!</strong> Once started, a track continues playing across scenes
             until you explicitly change/stop it. WSC has <span class="limit">4 channels</span>:
@@ -1662,15 +1670,15 @@ input[type=range] { accent-color: var(--brand); }
             <div class="field-group music-select-field">
               <label>Track</label>
               <select id="f-music-track" onchange="setProp('musicTrack',this.value)">
-                <option value="">â€” select a track â€”</option>
+                <option value="">— select a track —</option>
               </select>
             </div>
           </div>
           <div class="field-group music-select-field">
             <label>Loop mode</label>
             <div class="pill-btns">
-              <button class="pill-btn" data-loop="true" onclick="setProp('musicLoop',true);setPillSel('[data-loop]',this)">ðŸ” Loop</button>
-              <button class="pill-btn" data-loop="false" onclick="setProp('musicLoop',false);setPillSel('[data-loop]',this)">â–¶ One-shot</button>
+              <button class="pill-btn" data-loop="true" onclick="setProp('musicLoop',true);setPillSel('[data-loop]',this)">🔁 Loop</button>
+              <button class="pill-btn" data-loop="false" onclick="setProp('musicLoop',false);setPillSel('[data-loop]',this)">▶ One-shot</button>
             </div>
           </div>
           <div class="field-group">
@@ -1688,7 +1696,7 @@ input[type=range] { accent-color: var(--brand); }
                 <label>SFX</label>
                 <div class="sfx-select-field">
                   <select id="f-sfx" onchange="setProp('sfx',this.value)">
-              <option value="">â€” none â€”</option>
+              <option value="">— none —</option>
                   </select>
                 </div>
               </div>
@@ -1696,8 +1704,8 @@ input[type=range] { accent-color: var(--brand); }
             <div class="field-group sfx-select-field">
               <label>Playback</label>
               <div class="pill-btns">
-                <button class="pill-btn" data-sfxloop="true" onclick="setProp('sfxLoop',true);setPillSel('[data-sfxloop]',this)">Ã°Å¸â€Â Loop ambience</button>
-                <button class="pill-btn" data-sfxloop="false" onclick="setProp('sfxLoop',false);setPillSel('[data-sfxloop]',this)">Ã¢â€“Â¶ One-shot</button>
+                <button class="pill-btn" data-sfxloop="true" onclick="setProp('sfxLoop',true);setPillSel('[data-sfxloop]',this)">🔁 Loop ambience</button>
+                <button class="pill-btn" data-sfxloop="false" onclick="setProp('sfxLoop',false);setPillSel('[data-sfxloop]',this)">▶ One-shot</button>
               </div>
               <div class="hint">Note: WSC voice DMA is a single channel; looping ambience replaces any current one-shot SFX.</div>
             </div>
@@ -1705,30 +1713,30 @@ input[type=range] { accent-color: var(--brand); }
         </div>
 
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸ””</span>Global UI SFX</span></div>
+          <div class="section-title"><span><span class="icon">🔔</span>Global UI SFX</span></div>
           <div class="spec-info">
             Optional ROM-safe PCM cues for VN feedback. Leave blank if you want ambience to stay uninterrupted.
           </div>
           <div class="grid3">
             <div class="field-group">
               <label>Text blip</label>
-              <select id="f-ui-sfx-text" onchange="setProjectProp('uiSfxText',this.value)"><option value="">â€” none â€”</option></select>
+              <select id="f-ui-sfx-text" onchange="setProjectProp('uiSfxText',this.value)"><option value="">— none —</option></select>
               <button class="small-btn" type="button" onclick="generateDialogueBlipSfx()" style="margin-top:6px">Generate dialogue blip</button>
             </div>
             <div class="field-group">
               <label>Cursor move</label>
-              <select id="f-ui-sfx-cursor" onchange="setProjectProp('uiSfxCursor',this.value)"><option value="">â€” none â€”</option></select>
+              <select id="f-ui-sfx-cursor" onchange="setProjectProp('uiSfxCursor',this.value)"><option value="">— none —</option></select>
             </div>
             <div class="field-group">
               <label>Confirm</label>
-              <select id="f-ui-sfx-confirm" onchange="setProjectProp('uiSfxConfirm',this.value)"><option value="">â€” none â€”</option></select>
+              <select id="f-ui-sfx-confirm" onchange="setProjectProp('uiSfxConfirm',this.value)"><option value="">— none —</option></select>
             </div>
           </div>
-          <div class="hint">Controls in ROM: Left opens backlog during dialogue; Gallery appears from a title menu item named â€œGalleryâ€.</div>
+          <div class="hint">Controls in ROM: Left opens backlog during dialogue; Gallery appears from a title menu item named “Gallery”.</div>
         </div>
 
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸŽ¹</span>Track Composer</span></div>
+          <div class="section-title"><span><span class="icon">🎹</span>Track Composer</span></div>
           <div class="spec-info">
             Compose music used by this project using a hardware-aligned 4-channel tracker (monophonic per channel, 32-step pattern, note lengths).
             Preview audio uses Web Audio, but it is driven by the same tracker data that exports to a real WSC ROM.
@@ -1737,13 +1745,13 @@ input[type=range] { accent-color: var(--brand); }
           <div class="field-group">
             <label>Select track to edit</label>
             <select id="f-track-edit" onchange="loadTrackToEditor(this.value)">
-              <option value="">â€” select or create â€”</option>
+              <option value="">— select or create —</option>
             </select>
             <div style="display:flex;gap:6px;margin-top:6px">
               <input type="text" id="f-new-track-name" placeholder="New track name...">
               <button class="small-btn" onclick="createNewTrack()">+ Create</button>
-              <button class="small-btn" onclick="deleteCurrentTrack()">âœ• Delete</button>
-              <button class="small-btn" onclick="document.getElementById('midi-upload').click()">â™« Import MIDI</button>
+              <button class="small-btn" onclick="deleteCurrentTrack()">✕ Delete</button>
+              <button class="small-btn" onclick="document.getElementById('midi-upload').click()">♫ Import MIDI</button>
               <button class="small-btn" onclick="exportCurrentTrack()">Export Track</button>
               <button class="small-btn" onclick="exportCurrentTrackToCygnals()">Export Cygnals .fur</button>
               <button class="small-btn" onclick="document.getElementById('track-upload').click()">Import Track</button>
@@ -1786,12 +1794,12 @@ input[type=range] { accent-color: var(--brand); }
               </div>
             </div>
             <div class="music-ctrl">
-              <button class="mc-btn" id="play-btn" onclick="togglePlayTrack()">â–¶ Play</button>
-              <button class="mc-btn" onclick="clearChannel()">âœ• Clear Channel</button>
-              <button class="mc-btn" onclick="clearAllChannels()">âœ• Clear All</button>
-              <button class="mc-btn" onclick="randomMelody()">âš„ Random Melody</button>
+              <button class="mc-btn" id="play-btn" onclick="togglePlayTrack()">▶ Play</button>
+              <button class="mc-btn" onclick="clearChannel()">✕ Clear Channel</button>
+              <button class="mc-btn" onclick="clearAllChannels()">✕ Clear All</button>
+              <button class="mc-btn" onclick="randomMelody()">⚄ Random Melody</button>
             </div>
-            <label>Piano Roll (32 steps Ã— 24 notes)</label>
+            <label>Piano Roll (32 steps × 24 notes)</label>
             <div class="piano-roll-wrap">
               <div id="piano-roll"></div>
             </div>
@@ -1800,10 +1808,10 @@ input[type=range] { accent-color: var(--brand); }
         </div>
       </div>
 
-      <!-- â•â•â• FLAGS TAB â•â•â• -->
+      <!-- ═══ FLAGS TAB ═══ -->
       <div class="tab-panel" id="tab-flags">
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸš©</span>Flags &amp; Variables</span></div>
+          <div class="section-title"><span><span class="icon">🚩</span>Flags &amp; Variables</span></div>
           <div class="spec-info">
             Numeric vars (<span class="limit">int8/int16</span>) or booleans that track player choices.
             Used in branches to route the story. Saved to cart SRAM.
@@ -1817,17 +1825,17 @@ input[type=range] { accent-color: var(--brand); }
         </div>
       </div>
 
-      <!-- â•â•â• ASSETS TAB â•â•â• -->
+      <!-- ═══ ASSETS TAB ═══ -->
       <div class="tab-panel" id="tab-assets">
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸ–¼</span>Backgrounds Library</span></div>
+          <div class="section-title"><span><span class="icon">🖼</span>Backgrounds Library</span></div>
           <div class="spec-info">
-            Target: <span class="limit">224Ã—144 PNG</span> prepared externally. Use wsc_image_prep.py first; the editor will not auto-scale or re-quantize.
+            Target: <span class="limit">224×144 PNG</span> prepared externally. Use wsc_image_prep.py first; the editor will not auto-scale or re-quantize.
             Pre-dither to WSC palette for best results.
           </div>
           <div class="asset-grid" id="lib-bg"></div>
           <button class="asset-upload" onclick="document.getElementById('bg-upload').click()" style="margin-top:10px">
-            <span class="big">â¤’</span>
+            <span class="big">⤒</span>
             <span>Import prepared PNG backgrounds</span>
             <span style="font-size:9px;color:var(--text3)">Multiple files allowed</span>
           </button>
@@ -1835,13 +1843,13 @@ input[type=range] { accent-color: var(--brand); }
         </div>
 
         <div class="section">
-          <div class="section-title"><span><span class="icon">â–£</span>Foregrounds Library</span></div>
+          <div class="section-title"><span><span class="icon">▣</span>Foregrounds Library</span></div>
           <div class="spec-info">
-            Target: <span class="limit">224Ã—144 PNG with alpha</span>. Runtime draws only the upper 224Ã—104 area so the textbox remains clean; converter clusters tiles into up to 8 palettes.
+            Target: <span class="limit">224×144 PNG with alpha</span>. Runtime draws only the upper 224×104 area so the textbox remains clean; converter clusters tiles into up to 8 palettes.
           </div>
           <div class="asset-grid" id="lib-fg"></div>
           <button class="asset-upload" onclick="document.getElementById('fg-upload').click()" style="margin-top:10px">
-            <span class="big">â¤’</span>
+            <span class="big">⤒</span>
             <span>Import transparent foreground PNGs</span>
             <span style="font-size:9px;color:var(--text3)">Multiple files allowed</span>
           </button>
@@ -1849,21 +1857,21 @@ input[type=range] { accent-color: var(--brand); }
         </div>
 
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸ‘¤</span>Characters Library</span></div>
+          <div class="section-title"><span><span class="icon">👤</span>Characters Library</span></div>
           <div class="spec-info">
-            Target: <span class="limit">96Ã—128 PNG with alpha, â‰¤16 colors</span>.
+            Target: <span class="limit">96×128 PNG with alpha, ≤16 colors</span>.
             Use prepared PNGs with transparent background. Name: <code>name_expr.png</code> (e.g. <code>yuna_happy.png</code>).
           </div>
           <div class="asset-grid" id="lib-char"></div>
           <button class="asset-upload" onclick="document.getElementById('char-upload').click()" style="margin-top:10px">
-            <span class="big">â¤’</span>
+            <span class="big">⤒</span>
             <span>Import prepared PNG character sprites</span>
           </button>
           <input type="file" id="char-upload" accept="image/png" multiple style="display:none" onchange="handleCharUpload(event)">
         </div>
 
         <div class="section">
-          <div class="section-title"><span><span class="icon">ðŸŽµ</span>Audio Backend</span></div>
+          <div class="section-title"><span><span class="icon">🎵</span>Audio Backend</span></div>
           <div class="spec-info">
             <strong>Legacy</strong> exports the built-in tracker + PCM SFX. <strong>Cygnals</strong> exports imported Furnace .fur music while keeping PCM SFX.
           </div>
@@ -1877,7 +1885,7 @@ input[type=range] { accent-color: var(--brand); }
         </div>
 
         <div class="section" id="cyg-music-section">
-          <div class="section-title"><span><span class="icon">ðŸŽ¼</span>Cygnals Music (.fur)</span></div>
+          <div class="section-title"><span><span class="icon">🎼</span>Cygnals Music (.fur)</span></div>
           <div class="spec-info">
             Import Furnace <span class="limit">.fur</span> files. These are compiled into the ROM and played with the Cygnals driver.
           </div>
@@ -1900,7 +1908,7 @@ input[type=range] { accent-color: var(--brand); }
           </div>
           <div class="asset-grid" id="lib-music-fur"></div>
           <button class="asset-upload" onclick="document.getElementById('music-fur-upload').click()" style="margin-top:10px">
-            <span class="big">â¤’</span>
+            <span class="big">⤒</span>
             <span>Import .fur music</span>
             <span style="font-size:9px;color:var(--text3)">Multiple files allowed</span>
           </button>
@@ -1908,13 +1916,13 @@ input[type=range] { accent-color: var(--brand); }
         </div>
 
         <div class="section" id="cyg-sfx-section">
-          <div class="section-title"><span><span class="icon">ðŸ”Š</span>Cygnals SFX (.fur)</span></div>
+          <div class="section-title"><span><span class="icon">🔊</span>Cygnals SFX (.fur)</span></div>
           <div class="spec-info">
             Disabled for now: .fur SFX hit an emulator/hardware-risk path. Use the stable PCM SFX importer below.
           </div>
           <div class="asset-grid" id="lib-sfx-fur"></div>
           <button class="asset-upload" onclick="document.getElementById('sfx-fur-upload').click()" style="margin-top:10px" disabled>
-            <span class="big">â¤’</span>
+            <span class="big">⤒</span>
             <span>Import .fur SFX</span>
             <span style="font-size:9px;color:var(--text3)">Multiple files allowed</span>
           </button>
@@ -1922,17 +1930,17 @@ input[type=range] { accent-color: var(--brand); }
         </div>
 
         <div class="section" id="legacy-sfx-section">
-          <div class="section-title"><span><span class="icon">ðŸ”Š</span>Sound Effects (WSC)</span></div>
+          <div class="section-title"><span><span class="icon">🔊</span>Sound Effects (WSC)</span></div>
           <div class="spec-info">
             SFX export to ROM as <span class="limit">unsigned 8-bit PCM @ 4kHz mono</span> via Sound DMA (Channel 2 Voice).
-            Keep them short (recommended <span class="limit">â‰¤6s</span>) to fit memory/toolchain limits.
+            Keep them short (recommended <span class="limit">≤6s</span>) to fit memory/toolchain limits.
           </div>
           <div class="hint" style="margin-bottom:10px">
-            WSC-safe checklist: WAV, PCM uncompressed, mono, 8-bit unsigned, 4000 Hz, 2â€“6 seconds for ambience/SFX.
+            WSC-safe checklist: WAV, PCM uncompressed, mono, 8-bit unsigned, 4000 Hz, 2–6 seconds for ambience/SFX.
           </div>
           <div class="asset-grid" id="lib-sfx"></div>
           <button class="asset-upload" onclick="document.getElementById('sfx-upload').click()" style="margin-top:10px">
-            <span class="big">â¤’</span>
+            <span class="big">⤒</span>
             <span>Import SFX (WAV preferred)</span>
           </button>
           <input type="file" id="sfx-upload" accept="audio/wav" multiple style="display:none" onchange="handleSFXUpload(event)">
@@ -1944,7 +1952,7 @@ input[type=range] { accent-color: var(--brand); }
     <div id="timeline-strip"></div>
   </div><!-- /center -->
 
-  <!-- â•â• RIGHT PANEL â•â• -->
+  <!-- ══ RIGHT PANEL ══ -->
   <div id="right-panel">
     <div class="rp-section">
       <div class="rp-title">ROM Budget Estimate</div>
@@ -1959,14 +1967,14 @@ input[type=range] { accent-color: var(--brand); }
     </div>
 
     <div class="rp-section scroll">
-      <div class="rp-title">Validation <button class="ph-btn" onclick="runValidation()" title="Re-run">â†»</button></div>
+      <div class="rp-title">Validation <button class="ph-btn" onclick="runValidation()" title="Re-run">↻</button></div>
       <div class="validation" id="validation-list"></div>
 
       <div class="rp-title" style="margin-top:16px">Hardware Specs</div>
       <div style="font-size:10px;color:var(--text2);line-height:1.7;font-family:'JetBrains Mono',monospace">
         CPU: V30MZ @ 3.072MHz<br>
         RAM: 16KB internal + 64KB<br>
-        Screen: <span style="color:var(--accent)">224Ã—144</span><br>
+        Screen: <span style="color:var(--accent)">224×144</span><br>
         Colors: <span style="color:var(--accent)">4096</span> palette<br>
         Tiles: <span style="color:var(--accent)">512 max</span> 4bpp<br>
         Sprites: <span style="color:var(--accent)">128</span> (32/line)<br>
@@ -1983,16 +1991,16 @@ input[type=range] { accent-color: var(--brand); }
 
 <div id="modal">
   <div id="modal-inner">
-    <button class="modal-close" onclick="closeModal()">âœ•</button>
+    <button class="modal-close" onclick="closeModal()">✕</button>
     <div id="modal-title">Export</div>
     <div id="modal-body"></div>
   </div>
 </div>
 
 <script>
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // GLOBAL
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 const HW = {
   SCREEN_W: 224, SCREEN_H: 144,
@@ -2041,7 +2049,7 @@ const BG_PRESETS = [
   { id:'room', label:'Room', c1:'#1a1040', c2:'#2a1060' },
   { id:'school', label:'School', c1:'#0a1a3e', c2:'#1a3a8f' },
   { id:'park', label:'Park', c1:'#0a2010', c2:'#1a5020' },
-  { id:'cafe', label:'CafÃ©', c1:'#2a1000', c2:'#603010' },
+  { id:'cafe', label:'Café', c1:'#2a1000', c2:'#603010' },
   { id:'beach', label:'Beach', c1:'#001840', c2:'#0050a0' },
   { id:'night', label:'Night', c1:'#00001a', c2:'#00003a' },
   { id:'sky', label:'Sky', c1:'#1060b0', c2:'#50a0f0' },
@@ -2088,13 +2096,13 @@ const TB_STYLES = [
 ];
 
 const NODE_TYPES = {
-  title:   { icon:'ðŸŽ¬', label:'Title Screen', iconClass:'ico-title' },
-  chapter: { icon:'ðŸ“–', label:'Chapter',      iconClass:'ico-chapter' },
-  scene:   { icon:'ðŸ’¬', label:'Scene',        iconClass:'ico-scene' },
-  choice:  { icon:'â‘‚',  label:'Choice',       iconClass:'ico-choice' },
-  branch:  { icon:'â‡„',  label:'Branch',       iconClass:'ico-branch' },
-  investigation: { icon:'ðŸ”Ž', label:'Investigation', iconClass:'ico-investigation' },
-  end:     { icon:'ðŸ', label:'End',          iconClass:'ico-end' },
+  title:   { icon:'🎬', label:'Title Screen', iconClass:'ico-title' },
+  chapter: { icon:'📖', label:'Chapter',      iconClass:'ico-chapter' },
+  scene:   { icon:'💬', label:'Scene',        iconClass:'ico-scene' },
+  choice:  { icon:'⑂',  label:'Choice',       iconClass:'ico-choice' },
+  branch:  { icon:'⇄',  label:'Branch',       iconClass:'ico-branch' },
+  investigation: { icon:'🔎', label:'Investigation', iconClass:'ico-investigation' },
+  end:     { icon:'🏁', label:'End',          iconClass:'ico-end' },
 };
 
 const NOTE_NAMES = [];
@@ -2496,9 +2504,9 @@ function applyScenePreset(id) {
   notify(`Applied visual preset: ${p.label}`);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // INIT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 function init() {
   loadLocal();
   project = normalizeProject(project);
@@ -2569,9 +2577,9 @@ function newNode(type, name, parent) {
   return n;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // BUILDERS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function buildAllPickers() {
   buildBGPresets();
@@ -2759,9 +2767,9 @@ function buildPianoRoll() {
   });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // TREE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function renderTree() {
   const el = document.getElementById('tree');
@@ -2826,7 +2834,7 @@ function renderNode(node, depth, forceLeaf=false) {
 
   const caret = document.createElement('div');
   caret.className = 'tree-caret' + (isOpen?' open':'');
-  caret.textContent = hasChildren ? 'â–¶' : '';
+  caret.textContent = hasChildren ? '▶' : '';
   if(hasChildren) {
     caret.onclick = (e) => { e.stopPropagation(); treeExpanded[node.id] = !isOpen; renderTree(); };
   }
@@ -2858,7 +2866,7 @@ function renderNode(node, depth, forceLeaf=false) {
   if(node.type !== 'title') {
     const del = document.createElement('button');
     del.className = 'tree-del';
-    del.textContent = 'Ã—';
+    del.textContent = '×';
     del.onclick = (e) => { e.stopPropagation(); deleteNode(node.id); };
     item.appendChild(del);
   }
@@ -2931,9 +2939,9 @@ function collapseAll() {
   renderTree();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // NODE SELECT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function selectNode(id) {
   curNodeId = id;
@@ -3197,9 +3205,9 @@ function autoInsertPauses() {
   notify(`Split into ${Math.max(outputBoxes.length, 1)} WSC text box${outputBoxes.length === 1 ? '' : 'es'}`);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // CHOICES
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function renderChoicesUI() {
   const n = getNode(curNodeId);
@@ -3228,7 +3236,7 @@ function renderChoicesUI() {
           <option value="toggle" ${fo.op==='toggle'?'selected':''}>toggle</option>
         </select>
         <input type="number" value="${fo.value||0}" onchange="updChoiceFlagOp(${i},${fi},'value',parseInt(this.value)||0)">
-        <button class="choice-flag-del" onclick="delChoiceFlagOp(${i},${fi})">Ã—</button>
+        <button class="choice-flag-del" onclick="delChoiceFlagOp(${i},${fi})">×</button>
       </div>`).join('');
 
     row.innerHTML = `
@@ -3252,7 +3260,7 @@ function renderChoicesUI() {
           <button class="small-btn" onclick="addChoiceFlagOp(${i})">+ op</button>
         </div>
       </div>
-      <button class="choice-del" onclick="removeChoice(${i})">Ã—</button>
+      <button class="choice-del" onclick="removeChoice(${i})">×</button>
     `;
     el.appendChild(row);
   });
@@ -3308,9 +3316,9 @@ function updChoiceFlagOp(i, fi, key, val) {
   saveLocal();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // BRANCHES
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function renderBranchesUI() {
   const n = getNode(curNodeId);
@@ -3327,7 +3335,7 @@ function renderBranchesUI() {
     row.innerHTML = `
       <div class="branch-head">
         <span class="lbl">IF #${i+1}</span>
-        <button class="branch-del" onclick="removeBranch(${i})">Ã—</button>
+        <button class="branch-del" onclick="removeBranch(${i})">×</button>
       </div>
       <div class="branch-cond">
         <select onchange="updBranch(${i},'flag',this.value)">
@@ -3340,7 +3348,7 @@ function renderBranchesUI() {
         <input type="number" value="${b.value||0}" onchange="updBranch(${i},'value',parseInt(this.value)||0)">
       </div>
       <div class="branch-target">
-        <span style="color:var(--warn)">â†’ GOTO</span>
+        <span style="color:var(--warn)">→ GOTO</span>
         <select onchange="updBranch(${i},'target',this.value)">${targetOptionsWithSelected(targetOptions, b.target)}</select>
       </div>`;
     el.appendChild(row);
@@ -3348,7 +3356,7 @@ function renderBranchesUI() {
 
   const defSel = document.getElementById('f-default-target');
   if(defSel) {
-    defSel.innerHTML = '<option value="">â€” next in order â€”</option>' + buildTargetOptions();
+    defSel.innerHTML = '<option value="">— next in order —</option>' + buildTargetOptions();
     defSel.value = n.defaultTarget || '';
   }
 }
@@ -3387,7 +3395,7 @@ function renderHotspotsUI() {
     row.innerHTML = `
       <div class="branch-head">
         <span class="lbl">HOTSPOT #${i+1}</span>
-        <button class="branch-del" onclick="removeHotspot(${i})">Ã—</button>
+        <button class="branch-del" onclick="removeHotspot(${i})">×</button>
       </div>
       <div class="grid2">
         <input placeholder="Name" value="${escapeHTML(h.name||'')}" oninput="updHotspot(${i},'name',this.value)">
@@ -3401,14 +3409,14 @@ function renderHotspotsUI() {
       </div>
       <textarea rows="3" style="margin-top:6px" placeholder="Text shown when inspected..." oninput="updHotspot(${i},'text',this.value)">${escapeHTML(h.text||'')}</textarea>
       <div class="branch-target" style="margin-top:6px">
-        <span style="color:var(--warn)">â†’ optional target</span>
+        <span style="color:var(--warn)">→ optional target</span>
         <select onchange="updHotspot(${i},'target',this.value)">${targetOptionsWithSelected(targetOptions, h.target)}</select>
       </div>`;
     el.appendChild(row);
   });
   const defSel = document.getElementById('f-investigation-target');
   if(defSel) {
-    defSel.innerHTML = '<option value="">â€” next in order â€”</option>' + buildTargetOptions();
+    defSel.innerHTML = '<option value="">— next in order —</option>' + buildTargetOptions();
     defSel.value = n.defaultTarget || '';
   }
 }
@@ -3434,10 +3442,10 @@ function updHotspot(i, key, val) {
 }
 
 function buildTargetOptions() {
-  let html = '<option value="">â€” next in order â€”</option>';
+  let html = '<option value="">— next in order —</option>';
   project.nodes.forEach(n=>{
     if(n.type==='chapter') {
-      html += `<option value="${n.id}" disabled>â”€â”€ ${escapeHTML(n.name)} â”€â”€</option>`;
+      html += `<option value="${n.id}" disabled>── ${escapeHTML(n.name)} ──</option>`;
       project.nodes.filter(x=>x.parent===n.id).forEach(c=>{
         const icon = NODE_TYPES[c.type]?.icon||'?';
         html += `<option value="${c.id}">  ${icon} ${escapeHTML(c.name)}</option>`;
@@ -3447,9 +3455,9 @@ function buildTargetOptions() {
   return html;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // SCENE FLAG OPS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function renderSceneFlagOps() {
   const n = getNode(curNodeId);
@@ -3473,7 +3481,7 @@ function renderSceneFlagOps() {
         <option value="set" ${fo.op==='set'?'selected':''}>=</option>
       </select>
       <input type="number" value="${fo.value||0}" onchange="updSceneFlagOp(${i},'value',parseInt(this.value)||0)">
-      <button class="choice-flag-del" onclick="delSceneFlagOp(${i})">Ã—</button>`;
+      <button class="choice-flag-del" onclick="delSceneFlagOp(${i})">×</button>`;
     el.appendChild(row);
   });
 }
@@ -3499,9 +3507,9 @@ function updSceneFlagOp(i,key,val) {
   saveLocal();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // FLAGS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function renderFlags() {
   const el = document.getElementById('flags-list');
@@ -3517,7 +3525,7 @@ function renderFlags() {
         <option value="bool" ${f.type==='bool'?'selected':''}>bool</option>
       </select>
       <input type="number" placeholder="initial" value="${f.initial||0}" onchange="updFlag(${i},'initial',parseInt(this.value)||0)">
-      <button class="choice-flag-del" onclick="removeFlag(${i})">Ã—</button>`;
+      <button class="choice-flag-del" onclick="removeFlag(${i})">×</button>`;
     el.appendChild(row);
   });
 }
@@ -3538,9 +3546,9 @@ function updFlag(i,k,v) {
   saveLocal();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // ASSETS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function handleBGUpload(e) {
   [...e.target.files].forEach(f => readImageAsAsset(f, 'backgrounds'));
@@ -3812,13 +3820,13 @@ function readImageAsAsset(file, category) {
 
       let note = `Imported: ${file.name}`;
       if (category === 'backgrounds' && (img.width !== HW.MAX_BG_W || img.height !== HW.MAX_BG_H)) {
-        note += ` (expected ${HW.MAX_BG_W}Ã—${HW.MAX_BG_H})`;
+        note += ` (expected ${HW.MAX_BG_W}×${HW.MAX_BG_H})`;
       } else if (category === 'characters' && (img.width > HW.MAX_CHAR_W || img.height > HW.MAX_CHAR_H)) {
-        note += ` (max ${HW.MAX_CHAR_W}Ã—${HW.MAX_CHAR_H})`;
+        note += ` (max ${HW.MAX_CHAR_W}×${HW.MAX_CHAR_H})`;
       } else if (category === 'characters') {
-        note += ` (OK: ${img.width}Ãƒâ€”${img.height}, transparent PNG recommended)`;
+        note += ` (OK: ${img.width}×${img.height}, transparent PNG recommended)`;
       } else if (category === 'backgrounds') {
-        note += ` (OK: ${img.width}Ãƒâ€”${img.height})`;
+        note += ` (OK: ${img.width}×${img.height})`;
       }
       notify(note);
     };
@@ -4261,7 +4269,7 @@ function renderAssetLibs() {
       const usage = getAssetUsage(category, a.id);
       const thumb = a.dataUrl && a.dataUrl.startsWith('data:image')
         ? `<img src="${a.dataUrl}" class="asset-thumb" style="${(category==='characters'||category==='backgrounds'||category==='foregrounds')?'object-fit:contain':''}">`
-        : `<div class="asset-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px">${(category==='music'||category==='musicFur')?'ðŸŽµ':(category==='sfx'||category==='sfxFur')?'ðŸ”Š':'ðŸ“¦'}</div>`;
+        : `<div class="asset-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px">${(category==='music'||category==='musicFur')?'🎵':(category==='sfx'||category==='sfxFur')?'🔊':'📦'}</div>`;
       const paletteControl = category === 'characters' || category === 'backgrounds' || category === 'foregrounds' ? `
         <label class="asset-meta" style="display:block;margin-top:6px">Palette split</label>
         <select class="mini-select" onclick="event.stopPropagation()" onchange="setAssetPaletteMode('${category}', '${a.id}', this.value)">
@@ -4321,14 +4329,14 @@ function renderBGAssetGrid() {
 
   const none = document.createElement('div');
   none.className = 'asset-card' + (!n.bgImageId?' sel':'');
-  none.innerHTML = `<div class="asset-thumb" style="display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text3)">â€”</div><div class="asset-name">Use preset</div>`;
+  none.innerHTML = `<div class="asset-thumb" style="display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text3)">—</div><div class="asset-name">Use preset</div>`;
   none.onclick = () => { setProp('bgImageId', null); renderBGAssetGrid(); };
   el.appendChild(none);
 
   project.assets.backgrounds.forEach(a=>{
     const card = document.createElement('div');
     card.className = 'asset-card' + (n.bgImageId===a.id?' sel':'');
-    card.innerHTML = `<img src="${a.dataUrl}" class="asset-thumb" style="object-fit:contain"><div class="asset-name">${escapeHTML(a.name)}</div><div class="asset-meta">${a.w}Ã—${a.h}</div>`;
+    card.innerHTML = `<img src="${a.dataUrl}" class="asset-thumb" style="object-fit:contain"><div class="asset-name">${escapeHTML(a.name)}</div><div class="asset-meta">${a.w}×${a.h}</div>`;
     card.onclick = () => { setProp('bgImageId', a.id); renderBGAssetGrid(); };
     el.appendChild(card);
   });
@@ -4441,14 +4449,14 @@ function renderCharGridBase(containerId, prop) {
 
   const none = document.createElement('div');
   none.className = 'asset-card' + (!n[prop]?' sel':'');
-  none.innerHTML = `<div class="asset-thumb" style="display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text3)">â€”</div><div class="asset-name">None</div>`;
+  none.innerHTML = `<div class="asset-thumb" style="display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text3)">—</div><div class="asset-name">None</div>`;
   none.onclick = () => { setProp(prop, null); renderCharGridBase(containerId, prop); };
   el.appendChild(none);
 
   project.assets.characters.forEach(a=>{
     const card = document.createElement('div');
     card.className = 'asset-card' + (n[prop]===a.id?' sel':'');
-    card.innerHTML = `<img src="${a.dataUrl}" class="asset-thumb" style="object-fit:contain"><div class="asset-name">${escapeHTML(a.name)}</div><div class="asset-meta">${a.w}Ã—${a.h}</div>`;
+    card.innerHTML = `<img src="${a.dataUrl}" class="asset-thumb" style="object-fit:contain"><div class="asset-name">${escapeHTML(a.name)}</div><div class="asset-meta">${a.w}×${a.h}</div>`;
     card.onclick = () => { setProp(prop, a.id); renderCharGridBase(containerId, prop); };
     el.appendChild(card);
   });
@@ -4461,9 +4469,9 @@ function renderCharGridBase(containerId, prop) {
   el.appendChild(up);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // MUSIC TRACKS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function createNewTrack() {
   const name = (document.getElementById('f-new-track-name').value || 'Track ' + (project.tracks.length+1)).trim();
@@ -4532,7 +4540,7 @@ function handleMidiUpload(e) {
         document.getElementById('f-track-edit').value = trackId;
         loadTrackToEditor(trackId);
         saveLocal();
-        notify(`Imported MIDI â†’ tracker: ${suggestedName}`);
+        notify(`Imported MIDI → tracker: ${suggestedName}`);
       } catch (err) {
         notify('MIDI import failed: ' + (err?.message || String(err)), true);
       }
@@ -4973,7 +4981,7 @@ function togglePlayTrack() {
   if(isPlaying) {
     clearInterval(playInterval);
     isPlaying=false; playStep=0;
-    btn.textContent='â–¶ Play';
+    btn.textContent='▶ Play';
     btn.classList.remove('playing');
     document.querySelectorAll('.pr-cell').forEach(c=>c.classList.remove('playing'));
     return;
@@ -4981,7 +4989,7 @@ function togglePlayTrack() {
   const tr = project.tracks.find(t=>t.id===curTrackId);
   if(!tr) { notify('Create and select a track first'); return; }
   isPlaying=true;
-  btn.textContent='â–  Stop';
+  btn.textContent='■ Stop';
   btn.classList.add('playing');
   const stepSec = (60/Math.max(1,tr.bpm)/4);
   const interval = stepSec*1000;
@@ -5104,8 +5112,8 @@ function updateSelectOptions() {
   if(fontStyle) fontStyle.value = 'classic';
   const isCyg = project.audioBackend === 'cygnals';
   const musicList = isCyg ? project.assets.musicFur : project.tracks;
-  const musicIcon = isCyg ? 'ðŸŽ¼' : 'ðŸŽµ';
-  const musicOpts = '<option value="">â€” none â€”</option>' +
+  const musicIcon = isCyg ? '🎼' : '🎵';
+  const musicOpts = '<option value="">— none —</option>' +
     musicList.map(t=>`<option value="${t.id}">${musicIcon} ${escapeHTML(t.name)}</option>`).join('');
 
   const trackSelect = document.getElementById('f-music-track');
@@ -5118,7 +5126,7 @@ function updateSelectOptions() {
   const trackEdit = document.getElementById('f-track-edit');
   if(trackEdit) {
     const prev = trackEdit.value;
-    trackEdit.innerHTML = '<option value="">â€” select or create â€”</option>' +
+    trackEdit.innerHTML = '<option value="">— select or create —</option>' +
       project.tracks.map(t=>`<option value="${t.id}">${escapeHTML(t.name)}</option>`).join('');
     trackEdit.value = prev;
   }
@@ -5127,7 +5135,7 @@ function updateSelectOptions() {
   if(sfx) {
     const prev = sfx.value;
     const sfxList = project.assets.sfx;
-    sfx.innerHTML = '<option value="">â€” none â€”</option>' +
+    sfx.innerHTML = '<option value="">— none —</option>' +
       sfxList.map(s=>`<option value="${s.id}">${escapeHTML(s.name)}</option>`).join('');
     sfx.value = prev;
   }
@@ -5137,7 +5145,7 @@ function updateSelectOptions() {
     const el = document.getElementById(id);
     if(!el) return;
     const key = kind === 'text' ? 'uiSfxText' : kind === 'cursor' ? 'uiSfxCursor' : 'uiSfxConfirm';
-    el.innerHTML = '<option value="">â€” none â€”</option>' +
+    el.innerHTML = '<option value="">— none —</option>' +
       project.assets.sfx.map(s=>`<option value="${s.id}">${escapeHTML(s.name)}</option>`).join('');
     el.value = project[key] || '';
   });
@@ -5145,14 +5153,14 @@ function updateSelectOptions() {
   const next = document.getElementById('f-next');
   if(next) {
     const prev = next.value;
-    next.innerHTML = '<option value="">â€” next scene automatically â€”</option>' + buildTargetOptions();
+    next.innerHTML = '<option value="">— next scene automatically —</option>' + buildTargetOptions();
     next.value = prev;
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // PREVIEW RENDER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function renderPreview() {
   if(!curNodeId) return;
@@ -5304,15 +5312,15 @@ function renderPreview() {
       choicesOv.appendChild(r);
     });
     if(sp) sp.style.display='none';
-    if(dlg) dlg.innerHTML = '<span style="color:var(--accent2);font-family:monospace;font-size:10px">ðŸ”Ž INVESTIGATION: move cursor and inspect hotspots</span>';
+    if(dlg) dlg.innerHTML = '<span style="color:var(--accent2);font-family:var(--emoji-mono-font);font-size:10px">🔎 INVESTIGATION: move cursor and inspect hotspots</span>';
   } else if(n.type==='branch') {
     if(sp) sp.style.display='none';
-    if(dlg) dlg.innerHTML = '<span style="color:var(--warn);font-family:monospace;font-size:10px">â‡„ BRANCH: ' + (n.branches||[]).length + ' conditions</span>';
+    if(dlg) dlg.innerHTML = '<span style="color:var(--warn);font-family:monospace;font-size:10px">⇄ BRANCH: ' + (n.branches||[]).length + ' conditions</span>';
     tbBg.style.background = 'transparent';
     tbBg.style.borderColor = 'transparent';
   } else if(n.type==='chapter') {
     if(sp) sp.style.display='none';
-    if(dlg) dlg.innerHTML = '<span style="color:var(--purple);font-family:monospace;font-size:12px">ðŸ“– ' + escapeHTML(n.name) + '</span>';
+    if(dlg) dlg.innerHTML = '<span style="color:var(--purple);font-family:var(--emoji-mono-font);font-size:12px">📖 ' + escapeHTML(n.name) + '</span>';
     tbBg.style.background = 'transparent';
     tbBg.style.borderColor = 'transparent';
   } else {
@@ -5333,7 +5341,7 @@ function renderPreview() {
       const arrow = document.getElementById('wsc-arrow');
       if (arrow) {
         arrow.style.display = 'block';
-        arrow.textContent = boxData.boxes.length > 1 ? (boxData.index + 1) + '/' + boxData.boxes.length + ' â–¼' : 'â–¼';
+        arrow.textContent = boxData.boxes.length > 1 ? (boxData.index + 1) + '/' + boxData.boxes.length + ' ▼' : '▼';
       }
     }
   }
@@ -5457,9 +5465,9 @@ function renderParticles(type) {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // TIMELINE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function renderTimeline() {
   const el = document.getElementById('timeline-strip');
@@ -5499,15 +5507,15 @@ function renderTimeline() {
     if(i < nodes.length-1 && nodes[i+1].type !== 'chapter') {
       const arrow = document.createElement('div');
       arrow.className = 'tl-arrow';
-      arrow.textContent = 'â€º';
+      arrow.textContent = '›';
       el.appendChild(arrow);
     }
   });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // ROM BUDGET & VALIDATION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function estimateROMUsage() {
   let textKB = 0, bgKB = 0, fgKB = 0, charKB = 0, musicKB = 0, sfxKB = 0;
@@ -5674,7 +5682,7 @@ function runValidation() {
 
   project.assets.backgrounds.forEach(a=>{
     if(a.w !== HW.MAX_BG_W || a.h !== HW.MAX_BG_H)
-      issues.push({ level:'err', msg:`BG "${a.name}" must be exactly ${HW.MAX_BG_W}Ã—${HW.MAX_BG_H} (got ${a.w}Ã—${a.h})` });
+      issues.push({ level:'err', msg:`BG "${a.name}" must be exactly ${HW.MAX_BG_W}×${HW.MAX_BG_H} (got ${a.w}×${a.h})` });
     if((a.w || 0) % HW.TILE_ALIGN !== 0 || (a.h || 0) % HW.TILE_ALIGN !== 0)
       issues.push({ level:'warn', msg:`BG "${a.name}" is not ${HW.TILE_ALIGN}px tile-aligned` });
     // Runtime budget: bank 1 has 511 usable tiles for a single BG
@@ -5684,7 +5692,7 @@ function runValidation() {
   });
   project.assets.characters.forEach(a=>{
     if(a.w > HW.MAX_CHAR_W || a.h > HW.MAX_CHAR_H)
-      issues.push({ level:'err', msg:`Char "${a.name}": ${a.w}Ã—${a.h} exceeds ${HW.MAX_CHAR_W}Ã—${HW.MAX_CHAR_H}` });
+      issues.push({ level:'err', msg:`Char "${a.name}": ${a.w}×${a.h} exceeds ${HW.MAX_CHAR_W}×${HW.MAX_CHAR_H}` });
     if((a.w || 0) % HW.TILE_ALIGN !== 0 || (a.h || 0) % HW.TILE_ALIGN !== 0)
       issues.push({ level:'warn', msg:`Char "${a.name}" is not ${HW.TILE_ALIGN}px aligned` });
     // Runtime budget: each char slot has 192 tiles
@@ -5762,11 +5770,11 @@ function runValidation() {
   });
 
   if(issues.length === 0) {
-    el.innerHTML = `<div class="v-item ok"><span class="ico">âœ“</span><span>No issues. Project valid for WSC.</span></div>`;
+    el.innerHTML = `<div class="v-item ok"><span class="ico">✓</span><span>No issues. Project valid for WSC.</span></div>`;
   } else {
     el.innerHTML = issues.map(i=>`
       <div class="v-item ${i.level}">
-        <span class="ico">${i.level==='err'?'âœ•':'âš '}</span>
+        <span class="ico">${i.level==='err'?'✕':'⚠'}</span>
         <span>${escapeHTML(i.msg)}</span>
       </div>`).join('');
   }
@@ -5798,12 +5806,12 @@ function simulateStart() {
   resetFlags();
   const startId = getStartNodeId(project);
   if(startId) selectNode(startId);
-  notify('â–¶ Simulating from start');
+  notify('▶ Simulating from start');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // TABS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function switchTab(tab) {
   curTab = tab;
@@ -5813,9 +5821,9 @@ function switchTab(tab) {
   document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // EXPORT / IMPORT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function safeFileStem(name) {
   return String(name || 'untitled').trim().replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'untitled';
@@ -5910,7 +5918,7 @@ function parseBulkScript(text, parentId) {
   while(index < lines.length) {
     let line = lines[index].trim();
     if(!line) { index++; continue; }
-    const chapterMatch = /^(?:#\s*)?(?:chapter|cap[iÃ­]tulo)\s*[:\-]\s*(.+)$/i.exec(line) || /^#+\s*(.+)$/i.exec(line);
+    const chapterMatch = /^(?:#\s*)?(?:chapter|cap[ií]tulo)\s*[:\-]\s*(.+)$/i.exec(line) || /^#+\s*(.+)$/i.exec(line);
     if(chapterMatch) {
       const chapter = newNode('chapter', chapterMatch[1].trim(), null);
       treeExpanded[chapter.id] = true;
@@ -5928,7 +5936,7 @@ function parseBulkScript(text, parentId) {
       while(index < lines.length) {
         const option = lines[index].trim();
         if(!option) { index++; break; }
-        if(/^(?:#|chapter|cap[iÃ­]tulo|choice|choices|escolha)\b/i.test(option)) break;
+        if(/^(?:#|chapter|cap[ií]tulo|choice|choices|escolha)\b/i.test(option)) break;
         const m = /^[-*]\s*(.+?)(?:\s*(?:->|=>)\s*(.+))?$/.exec(option);
         if(!m) break;
         const opt = { text:m[1].trim(), target:'', condition:'', flagOps:[] };
@@ -5964,7 +5972,7 @@ function parseBulkScript(text, parentId) {
       while(index < lines.length) {
         const next = lines[index].trim();
         const nextSpeakerParts = next.split(/\s+-\s+/);
-        const isNextControl = /^(?:#|chapter|cap[iÃ­]tulo|choice|choices|escolha)\b/i.test(next);
+        const isNextControl = /^(?:#|chapter|cap[ií]tulo|choice|choices|escolha)\b/i.test(next);
         const isNextSpeaker = next && nextSpeakerParts.length >= 2 && !/\.(png|jpg|jpeg)$/i.test(next);
         if(isNextControl || isNextSpeaker) break;
         if(!next) flushParagraph();
@@ -6066,13 +6074,13 @@ function previewBulkImporter() {
       <div class="section-title"><span>Dry-run Result</span></div>
       <div class="grid2">
         <div>
-          <div class="val-item ok"><span class="vicon">âœ“</span><span>${created.length} nodes would be created</span></div>
+          <div class="val-item ok"><span class="vicon">✓</span><span>${created.length} nodes would be created</span></div>
           <div class="hint">Chapters ${stats.chapters}, scenes ${stats.scenes}, choices ${stats.choices}, investigations ${stats.investigations}</div>
           <div class="hint">Auto-linked BGs ${stats.bgLinked}, characters ${stats.charLinked}</div>
           <div class="hint">Asset library changes: ${assetMutation ? 'unexpected' : 'none'}</div>
         </div>
         <div>
-          ${result.unresolved.length ? result.unresolved.map(x=>`<div class="val-item warn"><span class="vicon">!</span><span>Unresolved choice target: ${escapeHTML(x.targetName)}</span></div>`).join('') : '<div class="val-item ok"><span class="vicon">âœ“</span><span>No unresolved choice targets detected.</span></div>'}
+          ${result.unresolved.length ? result.unresolved.map(x=>`<div class="val-item warn"><span class="vicon">!</span><span>Unresolved choice target: ${escapeHTML(x.targetName)}</span></div>`).join('') : '<div class="val-item ok"><span class="vicon">✓</span><span>No unresolved choice targets detected.</span></div>'}
         </div>
       </div>
     </div>`;
@@ -6105,7 +6113,7 @@ function collectMissingAssetReport() {
 
 function renderMusicOverviewTable() {
   const musicName = (id) => {
-    if(!id) return 'â€”';
+    if(!id) return '—';
     const a = [...(project.assets.music || []), ...(project.assets.musicFur || [])].find(x=>x.id===id);
     return a ? a.name : `missing: ${id}`;
   };
@@ -6125,12 +6133,12 @@ function chapterPlayableNodes(chapterId) {
 }
 
 function assetSelectOptions(category, selected='') {
-  return `<option value="">â€” keep current â€”</option>` + (project.assets[category] || []).map(a=>`<option value="${escapeHTML(a.id)}" ${a.id===selected?'selected':''}>${escapeHTML(a.name)}</option>`).join('');
+  return `<option value="">— keep current —</option>` + (project.assets[category] || []).map(a=>`<option value="${escapeHTML(a.id)}" ${a.id===selected?'selected':''}>${escapeHTML(a.name)}</option>`).join('');
 }
 
 function musicSelectOptions(selected='') {
   const all = [...(project.assets.music || []), ...(project.assets.musicFur || [])];
-  return `<option value="">â€” keep current â€”</option>` + all.map(a=>`<option value="${escapeHTML(a.id)}" ${a.id===selected?'selected':''}>${escapeHTML(a.name)}</option>`).join('');
+  return `<option value="">— keep current —</option>` + all.map(a=>`<option value="${escapeHTML(a.id)}" ${a.id===selected?'selected':''}>${escapeHTML(a.name)}</option>`).join('');
 }
 
 function openBatchTools() {
@@ -6145,7 +6153,7 @@ function openBatchTools() {
       <div class="field-group">
         <label>Textbox style</label>
         <select id="batch-tb">
-          <option value="">â€” keep current â€”</option>
+          <option value="">— keep current —</option>
           <option value="dark">Dark</option>
           <option value="none">None</option>
         </select>
@@ -6188,7 +6196,7 @@ function previewBatchTools() {
     if(cfg.tbStyle && n.type === 'scene' && n.tbStyle !== cfg.tbStyle) changes.push(`${n.name}: textbox`);
   });
   el.innerHTML = changes.length
-    ? `<div class="val-item ok"><span class="vicon">âœ“</span><span>${changes.length} field changes across ${nodes.length} nodes.</span></div><div class="hint">${changes.slice(0,8).map(escapeHTML).join('<br>')}${changes.length>8?'<br>â€¦':''}</div>`
+    ? `<div class="val-item ok"><span class="vicon">✓</span><span>${changes.length} field changes across ${nodes.length} nodes.</span></div><div class="hint">${changes.slice(0,8).map(escapeHTML).join('<br>')}${changes.length>8?'<br>…':''}</div>`
     : '<div class="val-item warn"><span class="vicon">!</span><span>No changes selected or needed.</span></div>';
 }
 
@@ -6254,9 +6262,9 @@ function collectContinuityReport() {
 
 function renderContinuityReport() {
   const issues = collectContinuityReport();
-  if(!issues.length) return '<div class="val-item ok"><span class="vicon">âœ“</span><span>No continuity issues detected.</span></div>';
+  if(!issues.length) return '<div class="val-item ok"><span class="vicon">✓</span><span>No continuity issues detected.</span></div>';
   return issues.slice(0, 40).map(x=>`<div class="val-item ${x.level === 'err' ? 'err' : 'warn'}"><span class="vicon">!</span><span>${escapeHTML(x.node)}: ${escapeHTML(x.msg)}</span></div>`).join('')
-    + (issues.length > 40 ? `<div class="hint">â€¦and ${issues.length - 40} more.</div>` : '');
+    + (issues.length > 40 ? `<div class="hint">…and ${issues.length - 40} more.</div>` : '');
 }
 
 function chapterProgressRows() {
@@ -6292,11 +6300,11 @@ function chapterProgressRows() {
 function showPreflightTools() {
   const missing = collectMissingAssetReport();
   const assetRows = [
-    ['Background PNG', `${HW.MAX_BG_W}Ã—${HW.MAX_BG_H}, ${HW.MAX_BG_COLORS} colors, <= ${HW.MAX_BG_TILES} unique tiles`],
-    ['Character PNG', `<= ${HW.MAX_CHAR_W}Ã—${HW.MAX_CHAR_H}, transparent BG, ${HW.MAX_CHAR_COLORS} visible colors`],
+    ['Background PNG', `${HW.MAX_BG_W}×${HW.MAX_BG_H}, ${HW.MAX_BG_COLORS} colors, <= ${HW.MAX_BG_TILES} unique tiles`],
+    ['Character PNG', `<= ${HW.MAX_CHAR_W}×${HW.MAX_CHAR_H}, transparent BG, ${HW.MAX_CHAR_COLORS} visible colors`],
     ['Dialogue', `${HW.MAX_TEXT_PER_BOX} visible chars per textbox; use {pause}`],
     ['SFX WAV', `mono unsigned 8-bit PCM, ${HW.SFX_TARGET_RATE} Hz, <= ${HW.SFX_MAX_SECONDS}s`],
-    ['Music', `Use Cygnals .fur or Track Composer â†’ Export Cygnals .fur`],
+    ['Music', `Use Cygnals .fur or Track Composer → Export Cygnals .fur`],
   ];
   showModal('Preflight Tools', `
     <div class="grid2">
@@ -6306,7 +6314,7 @@ function showPreflightTools() {
       </div>
       <div class="section" style="margin:0">
         <div class="section-title"><span>Missing Asset / Target Report</span></div>
-        ${missing.length ? missing.map(r=>`<div class="val-item err"><span class="vicon">!</span><span>${escapeHTML(r[0])}: ${escapeHTML(r[1])}</span></div>`).join('') : '<div class="val-item ok"><span class="vicon">âœ“</span><span>No missing references found.</span></div>'}
+        ${missing.length ? missing.map(r=>`<div class="val-item err"><span class="vicon">!</span><span>${escapeHTML(r[0])}: ${escapeHTML(r[1])}</span></div>`).join('') : '<div class="val-item ok"><span class="vicon">✓</span><span>No missing references found.</span></div>'}
       </div>
     </div>
     <div class="section" style="margin-top:12px">
@@ -6436,7 +6444,7 @@ async function exportToWonderfulFolder() {
     showModal('Exported to Wonderful', `
       <div style="font-size:12px;line-height:1.7">
         <p><strong>Written:</strong> <code>json/${jsonFile}</code>, <code>${scripts.wfconfigFile}</code>, <code>build_${scripts.romName}.bat</code>, and <code>build_${scripts.romName}.ps1</code>.</p>
-        <p>Run the BAT/PS1 from Explorer or PowerShell to build. Browsers cannot execute the toolchain directly â€” annoying, but very much intentional security goblin behavior.</p>
+        <p>Run the BAT/PS1 from Explorer or PowerShell to build. Browsers cannot execute the toolchain directly — annoying, but very much intentional security goblin behavior.</p>
         <p>The build script copies the hardware profile into <code>wsc-vn-runtime\wfconfig.toml</code>: 8MB ROM, WSC color, 256KB SRAM save.</p>
         <pre>C:\\msys64\\usr\\bin\\bash.exe -lc "${scripts.bat.match(/-lc "(.+)"/)?.[1] || ''}"</pre>
       </div>
@@ -6465,7 +6473,7 @@ function handleProjectLoad(e) {
         isPlaying = false;
         playStep = 0;
         const btn = document.getElementById('play-btn');
-        if(btn) { btn.textContent = 'Ã¢â€“Â¶ Play'; btn.classList.remove('playing'); }
+        if(btn) { btn.textContent = '▶ Play'; btn.classList.remove('playing'); }
         document.querySelectorAll('.pr-cell').forEach(c=>c.classList.remove('playing'));
       }
       project = normalizeProject(data);
@@ -6492,9 +6500,9 @@ function buildROMGuide() {
     <div style="font-size:12px;line-height:1.7;color:var(--text1)">
       <h3 style="color:var(--brand);margin-bottom:10px">Build a Real WonderSwan Color ROM</h3>
 
-      <p><strong style="color:var(--accent)">Step 1 â€” Export project JSON</strong> (button in top bar). This produces a <code style="color:var(--accent);background:var(--bg2);padding:1px 5px">.wscvn.json</code> file containing all scenes, flags, assets (base64), and tracks.</p>
+      <p><strong style="color:var(--accent)">Step 1 — Export project JSON</strong> (button in top bar). This produces a <code style="color:var(--accent);background:var(--bg2);padding:1px 5px">.wscvn.json</code> file containing all scenes, flags, assets (base64), and tracks.</p>
 
-      <p><strong style="color:var(--accent)">Step 2 â€” Install Wonderful Toolchain</strong> (official WSC dev kit):</p>
+      <p><strong style="color:var(--accent)">Step 2 — Install Wonderful Toolchain</strong> (official WSC dev kit):</p>
       <pre># On MSYS2 (Windows) or Linux, follow:
 # https://wonderful.asie.pl/docs/getting-started/
 wf-pacman -Syu
@@ -6502,11 +6510,11 @@ wf-pacman -S target-wswan wf-tools
 pacman -S python python-pip
 pip install Pillow</pre>
 
-      <p><strong style="color:var(--accent)">Step 3 â€” Clone the WSC-VN runtime</strong>:</p>
+      <p><strong style="color:var(--accent)">Step 3 — Clone the WSC-VN runtime</strong>:</p>
       <pre>git clone &lt;your runtime repo&gt; wsc-vn-runtime
 cd wsc-vn-runtime</pre>
 
-      <p><strong style="color:var(--accent)">Step 4 â€” Convert JSON + build ROM</strong>:</p>
+      <p><strong style="color:var(--accent)">Step 4 — Convert JSON + build ROM</strong>:</p>
       <pre># Convert JSON to C data (validates limits first)
 make convert JSON=/path/to/MyGame.wscvn.json
 
@@ -6534,10 +6542,10 @@ make
 
       <h3 style="color:var(--accent2);margin:16px 0 8px">Hardware Limits Enforced</h3>
       <ul style="font-family:monospace;font-size:11px;line-height:1.6;padding-left:20px">
-        <li>Screen: 224Ã—144 px</li>
+        <li>Screen: 224×144 px</li>
         <li>Text per box: ${HW.MAX_TEXT_PER_BOX} chars; thin textbox decorations keep the full text area</li>
-        <li>BG: ${HW.MAX_BG_W}Ã—${HW.MAX_BG_H} max, ${HW.MAX_BG_COLORS} colors, up to ${HW.MAX_BG_TILES} tiles</li>
-        <li>Character sprites: ${HW.MAX_CHAR_W}Ã—${HW.MAX_CHAR_H} max, ${HW.MAX_CHAR_COLORS} colors + transparent, up to ${HW.MAX_CHAR_TILES} tiles/slot</li>
+        <li>BG: ${HW.MAX_BG_W}×${HW.MAX_BG_H} max, ${HW.MAX_BG_COLORS} colors, up to ${HW.MAX_BG_TILES} tiles</li>
+        <li>Character sprites: ${HW.MAX_CHAR_W}×${HW.MAX_CHAR_H} max, ${HW.MAX_CHAR_COLORS} colors + transparent, up to ${HW.MAX_CHAR_TILES} tiles/slot</li>
         <li>Audio: ${HW.AUDIO_CH} channels (3 wave + 1 noise/PCM)</li>
         <li>Cart ROM: ${HW.ROM_BUDGET_KB/1024} MB practical target / ${HW.ROM_THEORETICAL_KB/1024} MB theoretical ceiling</li>
       </ul>
@@ -6559,9 +6567,9 @@ function closeModal() {
   document.getElementById('modal').classList.remove('show');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // LOCAL STORAGE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 let saveLocalTimer;
 let saveLocalWarned = false;
@@ -6586,7 +6594,7 @@ function saveLocal() {
       try {
         localStorage.setItem('wscvn_project', json);
       } catch(quotaErr) {
-        // Quota exceeded even after strip â€” abandon auto-save quietly
+        // Quota exceeded even after strip — abandon auto-save quietly
         if(!saveLocalWarned) {
           notify('Auto-save disabled: localStorage full. Export often!', true);
           saveLocalWarned = true;
@@ -6620,9 +6628,9 @@ function loadLocal() {
   } catch(e){}
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // UTILS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function escapeHTML(s) {
   return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6638,9 +6646,9 @@ function notify(msg, isErr=false) {
   notifTimer = setTimeout(()=>el.classList.remove('show'), 2400);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 // MASTER RENDER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═════════════════════════════════════════════
 
 function render() {
   const nameInput = document.getElementById('project-name-input');
@@ -6718,4 +6726,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
