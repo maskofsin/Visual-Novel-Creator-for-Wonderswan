@@ -752,6 +752,7 @@ select option { background: var(--bg2); }
   display: flex;
   gap: 4px;
   align-items: center;
+  flex-wrap: wrap;
 }
 .choice-flag-op select, .choice-flag-op input {
   background: var(--bg1); border: 1px solid var(--border);
@@ -759,8 +760,10 @@ select option { background: var(--bg2); }
   font-family: 'JetBrains Mono', monospace;
   color: var(--text0);
 }
-.choice-flag-op input[type=number] { width: 48px; }
-.choice-flag-op select { width: auto; }
+.choice-flag-op input[type=number] { width: 82px; min-width: 82px; }
+.choice-flag-op select { width: auto; min-width: 68px; }
+.choice-flag-op select:first-child { min-width: 110px; }
+.op-value-label { color: var(--text3); font-size: 9px; }
 .choice-flag-del {
   background: none; border: none; color: var(--text3);
   cursor: pointer; font-size: 12px;
@@ -1431,7 +1434,8 @@ input[type=range] { accent-color: var(--brand); }
               <label>Flag operations on scene end (optional)</label>
               <div id="scene-flag-ops"></div>
               <button class="small-btn" onclick="addSceneFlagOp()">+ Add flag op</button>
-              <div class="hint">These run automatically when the player advances past this scene.</div>
+              <button class="small-btn" onclick="addSceneRandomOp()">+ Random roll</button>
+              <div class="hint">These run automatically when the player advances past this scene. Random roll stores a value from 0 up to max.</div>
             </div>
           </div>
         </div>
@@ -1820,7 +1824,7 @@ input[type=range] { accent-color: var(--brand); }
           <button class="add-choice-btn" onclick="addFlag()">+ Add Flag / Variable</button>
           <div class="hint" style="margin-top:12px">
             <strong>Tip:</strong> Create flags like <code>affection_yuna</code> (int), <code>has_key</code> (bool), <code>route</code> (int).
-            In choices, add/subtract points. In branches, check conditions like <code>affection_yuna &gt;= 5</code>.
+            For RNG, create an int like <code>roll</code>, then use <strong>+ Random roll</strong> on a scene or choice and branch on <code>roll == 0</code>.
           </div>
         </div>
       </div>
@@ -2210,11 +2214,41 @@ function movePreviewChoice(step = 1) {
   return true;
 }
 
+function applyPreviewFlagOps(ops = []) {
+  if(Object.keys(simFlags).length === 0) {
+    project.flags.forEach(f=>{ simFlags[f.name] = f.initial||0; });
+  }
+  (ops || []).forEach(op=>{
+    if(!op.name) return;
+    const cur = parseInt(simFlags[op.name] ?? 0) || 0;
+    const val = parseInt(op.value ?? 0) || 0;
+    if(op.op === 'add') simFlags[op.name] = cur + val;
+    else if(op.op === 'sub') simFlags[op.name] = cur - val;
+    else if(op.op === 'set') simFlags[op.name] = val;
+    else if(op.op === 'toggle') simFlags[op.name] = cur ? 0 : 1;
+    else if(op.op === 'rand') simFlags[op.name] = Math.floor(Math.random() * (Math.max(0, val) + 1));
+  });
+  renderFlagDisplay();
+}
+
+function evalPreviewCond(flag, op, value) {
+  const a = parseInt(simFlags[flag] ?? 0) || 0;
+  const b = parseInt(value ?? 0) || 0;
+  if(op === '==') return a === b;
+  if(op === '!=') return a !== b;
+  if(op === '>') return a > b;
+  if(op === '>=') return a >= b;
+  if(op === '<') return a < b;
+  if(op === '<=') return a <= b;
+  return false;
+}
+
 function activatePreviewSelection() {
   const n = getNode(curNodeId);
   if (!n) return false;
   if (n.type === 'scene') {
     if (movePreviewDialogue(1)) return true;
+    applyPreviewFlagOps(n.sceneFlagOps || []);
     if (n.next) { selectNode(n.next); return true; }
     return false;
   }
@@ -2232,8 +2266,21 @@ function activatePreviewSelection() {
   if (n.type === 'choice') {
     const first = (n.choices || [])[previewState.choiceIndex || 0];
     if (first && first.target) {
+      applyPreviewFlagOps(first.flagOps || []);
       const target = getNode(first.target);
       if (target) { selectNode(target.id); return true; }
+    }
+  }
+  if (n.type === 'branch') {
+    for (const br of (n.branches || [])) {
+      if (br.target && evalPreviewCond(br.flag, br.op, br.value)) {
+        selectNode(br.target);
+        return true;
+      }
+    }
+    if (n.defaultTarget) {
+      selectNode(n.defaultTarget);
+      return true;
     }
   }
   return false;
@@ -3234,8 +3281,10 @@ function renderChoicesUI() {
           <option value="sub" ${fo.op==='sub'?'selected':''}>-=</option>
           <option value="set" ${fo.op==='set'?'selected':''}>=</option>
           <option value="toggle" ${fo.op==='toggle'?'selected':''}>toggle</option>
+          <option value="rand" ${fo.op==='rand'?'selected':''}>random roll</option>
         </select>
-        <input type="number" value="${fo.value||0}" onchange="updChoiceFlagOp(${i},${fi},'value',parseInt(this.value)||0)">
+        <span class="op-value-label">${fo.op==='rand'?'max':'value'}</span>
+        <input type="number" value="${fo.value||0}" title="${fo.op==='rand'?'Highest possible random result. Example: max 2 gives 0, 1, or 2.':'Operation value.'}" onchange="updChoiceFlagOp(${i},${fi},'value',parseInt(this.value)||0)">
         <button class="choice-flag-del" onclick="delChoiceFlagOp(${i},${fi})">×</button>
       </div>`).join('');
 
@@ -3258,6 +3307,7 @@ function renderChoicesUI() {
           <span style="font-weight:500">Flag ops:</span>
           ${flagOpsHtml}
           <button class="small-btn" onclick="addChoiceFlagOp(${i})">+ op</button>
+          <button class="small-btn" onclick="addChoiceRandomOp(${i})">+ random</button>
         </div>
       </div>
       <button class="choice-del" onclick="removeChoice(${i})">×</button>
@@ -3303,6 +3353,14 @@ function addChoiceFlagOp(i) {
   saveLocal();
 }
 
+function addChoiceRandomOp(i) {
+  const n = getNode(curNodeId);
+  if(!n.choices[i].flagOps) n.choices[i].flagOps = [];
+  n.choices[i].flagOps.push({ name:'', op:'rand', value:1 });
+  render();
+  saveLocal();
+}
+
 function delChoiceFlagOp(i, fi) {
   const n = getNode(curNodeId);
   n.choices[i].flagOps.splice(fi,1);
@@ -3313,6 +3371,7 @@ function delChoiceFlagOp(i, fi) {
 function updChoiceFlagOp(i, fi, key, val) {
   const n = getNode(curNodeId);
   n.choices[i].flagOps[fi][key] = val;
+  if(key === 'op') render();
   saveLocal();
 }
 
@@ -3479,8 +3538,11 @@ function renderSceneFlagOps() {
         <option value="add" ${fo.op==='add'?'selected':''}>+=</option>
         <option value="sub" ${fo.op==='sub'?'selected':''}>-=</option>
         <option value="set" ${fo.op==='set'?'selected':''}>=</option>
+        <option value="toggle" ${fo.op==='toggle'?'selected':''}>toggle</option>
+        <option value="rand" ${fo.op==='rand'?'selected':''}>random roll</option>
       </select>
-      <input type="number" value="${fo.value||0}" onchange="updSceneFlagOp(${i},'value',parseInt(this.value)||0)">
+      <span class="op-value-label">${fo.op==='rand'?'max':'value'}</span>
+      <input type="number" value="${fo.value||0}" title="${fo.op==='rand'?'Highest possible random result. Example: max 2 gives 0, 1, or 2.':'Operation value.'}" onchange="updSceneFlagOp(${i},'value',parseInt(this.value)||0)">
       <button class="choice-flag-del" onclick="delSceneFlagOp(${i})">×</button>`;
     el.appendChild(row);
   });
@@ -3490,6 +3552,14 @@ function addSceneFlagOp() {
   const n = getNode(curNodeId);
   if(!n.sceneFlagOps) n.sceneFlagOps=[];
   n.sceneFlagOps.push({ name:'', op:'add', value:1 });
+  render();
+  saveLocal();
+}
+
+function addSceneRandomOp() {
+  const n = getNode(curNodeId);
+  if(!n.sceneFlagOps) n.sceneFlagOps=[];
+  n.sceneFlagOps.push({ name:'', op:'rand', value:1 });
   render();
   saveLocal();
 }
@@ -3504,6 +3574,7 @@ function delSceneFlagOp(i) {
 function updSceneFlagOp(i,key,val) {
   const n = getNode(curNodeId);
   n.sceneFlagOps[i][key]=val;
+  if(key === 'op') render();
   saveLocal();
 }
 
@@ -5761,10 +5832,20 @@ function runValidation() {
       if(b.flag && !flagNames.includes(b.flag))
         issues.push({ level:'err', msg:`"${n.name}" branch uses undefined flag "${b.flag}"` });
     });
+    (n.sceneFlagOps||[]).forEach(op=>{
+      if(op.name && !flagNames.includes(op.name))
+        issues.push({ level:'err', msg:`"${n.name}" scene op uses undefined flag "${op.name}"` });
+    });
     (n.choices||[]).forEach(c=>{
       (c.flagOps||[]).forEach(op=>{
         if(op.name && !flagNames.includes(op.name))
           issues.push({ level:'err', msg:`"${n.name}" choice op uses undefined flag "${op.name}"` });
+      });
+    });
+    (n.hotspots||[]).forEach(h=>{
+      (h.flagOps||[]).forEach(op=>{
+        if(op.name && !flagNames.includes(op.name))
+          issues.push({ level:'err', msg:`"${n.name}" hotspot op uses undefined flag "${op.name}"` });
       });
     });
   });
@@ -6704,6 +6785,8 @@ document.addEventListener('keydown', e=>{
     if(e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); movePreviewChoice(1); }
     else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); movePreviewChoice(-1); }
     else if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activatePreviewSelection(); }
+  } else if(n.type === 'branch') {
+    if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activatePreviewSelection(); }
   }
 });
 
