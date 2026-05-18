@@ -124,6 +124,8 @@ static uint8_t  g_fg_blink_closed = 0;
 static uint8_t  g_fg_blink_ctr    = 0;
 static uint8_t  g_fg_blink_patch  = 0xFF;
 static uint8_t  g_overlay_depth   = 0;
+static uint16_t g_frame_counter   = 0;
+static uint16_t g_rng_state       = 0xACE1u;
 static void char_blink_update(void);
 static void char_talk_tick(void);
 static void char_talk_neutral(void);
@@ -167,6 +169,8 @@ static void fg_blink_update(void);
 #define PAL_CHAR2B   11
 #define PAL_BG_IMAGE2 12
 #define PAL_DECOR    13
+#define BG_PAL_COUNT 8
+static const uint8_t BG_PAL_SLOTS[BG_PAL_COUNT] = { PAL_BG_TOP, PAL_BG_BOT, PAL_BG_IMAGE, PAL_BG_IMAGE2, 0, 3, 14, 15 };
 #define FG_PAL_COUNT 8
 static const uint8_t FG_PAL_SLOTS[FG_PAL_COUNT] = { 0, 3, PAL_CHAR1, PAL_CHAR1B, PAL_CHAR2, PAL_CHAR2B, 14, 15 };
 
@@ -357,6 +361,21 @@ static void reset_new_game_state(void) {
 
 static uint16_t k_cur = 0, k_prev = 0, k_new = 0;
 
+static void rng_mix(uint16_t v) {
+    g_rng_state ^= (uint16_t)(v + 0x9E37u + (uint16_t)(g_rng_state << 6) + (uint16_t)(g_rng_state >> 2));
+    if (!g_rng_state) g_rng_state = 0xACE1u;
+}
+
+static uint16_t rng_next(void) {
+    rng_mix(g_frame_counter);
+    uint16_t x = g_rng_state;
+    x ^= (uint16_t)(x << 7);
+    x ^= (uint16_t)(x >> 9);
+    x ^= (uint16_t)(x << 8);
+    g_rng_state = x ? x : 0xACE1u;
+    return g_rng_state;
+}
+
 static void read_keys(void) {
     k_prev = k_cur;
     k_cur  = 0;
@@ -372,6 +391,7 @@ static void read_keys(void) {
     if (btn & 0x04) k_cur |= _K_A;
     if (btn & 0x08) k_cur |= _K_B;
     k_new = k_cur & ~k_prev;
+    if (k_new) rng_mix((uint16_t)(g_frame_counter ^ k_cur ^ (uint16_t)(k_new << 1)));
 }
 static bool pressed(uint16_t m) { return (k_new & m) != 0; }
 
@@ -389,6 +409,7 @@ static void wait_key_release(void) {
 
 static void vblank(void) {
     wait_vblank_start();
+    g_frame_counter++;
     snd_update_frame();
     if (!g_overlay_depth) { char_blink_update(); fg_blink_update(); }
     /* Palette cycle runs during VBlank to avoid tearing. */
@@ -525,6 +546,8 @@ static uint8_t g_loaded_fg_id = 0xFE;     /* 0..NUM_FG_ASSETS-1, 0xFF none, 0xFE
 static uint8_t g_loaded_char1 = 0xFE;     /* 0..NUM_CHAR_ASSETS-1, 0xFF none, 0xFE unknown */
 static uint8_t g_loaded_char2 = 0xFE;
 
+static const uint8_t __far *image_tile_ptr(const image_asset_t __far *a, uint16_t tile_idx);
+
 /* SFX playback (sound DMA to channel 2 voice mode). */
 static uint16_t g_sfx_frames_left = 0;
 static uint8_t  g_sfx_looping = 0;
@@ -630,12 +653,18 @@ static void render_image_bg_on(uint16_t __wf_iram *scr, const image_asset_t __fa
     }
     if (!a || a->tile_count==0) return;
     for (uint16_t i=0;i<a->tile_count;i++)
-        wtb1f(BG_IMAGE_BASE+i, a->tiles+(uint32_t)i*TILE_SIZE);
+        wtb1f(BG_IMAGE_BASE+i, image_tile_ptr(a,i));
     for (uint8_t ty=0;ty<a->height_tiles&&ty<SCREEN_H;ty++)
         for (uint8_t tx=0;tx<a->width_tiles&&tx<SCREEN_W;tx++) {
             uint16_t tile_idx = (uint16_t)ty*a->width_tiles+tx;
             uint8_t pal = PAL_BG_IMAGE;
-            if (a->palette2 && a->tile_pals && a->tile_pals[tile_idx]) pal = PAL_BG_IMAGE2;
+            if (a->palettes && a->palette_count) {
+                uint8_t pi = a->tile_pals ? a->tile_pals[tile_idx] : 0;
+                if (pi >= BG_PAL_COUNT) pi = 0;
+                pal = BG_PAL_SLOTS[pi];
+            } else if (a->palette2 && a->tile_pals && a->tile_pals[tile_idx]) {
+                pal = PAL_BG_IMAGE2;
+            }
             put_cell(scr,tx,ty, BG_IMAGE_BASE+tile_idx, pal,true);
         }
 }
@@ -649,17 +678,41 @@ static void render_image_bg_map_on(uint16_t __wf_iram *scr, const image_asset_t 
         for (uint8_t tx=0;tx<a->width_tiles&&tx<SCREEN_W;tx++) {
             uint16_t tile_idx = (uint16_t)ty*a->width_tiles+tx;
             uint8_t pal = PAL_BG_IMAGE;
-            if (a->palette2 && a->tile_pals && a->tile_pals[tile_idx]) pal = PAL_BG_IMAGE2;
+            if (a->palettes && a->palette_count) {
+                uint8_t pi = a->tile_pals ? a->tile_pals[tile_idx] : 0;
+                if (pi >= BG_PAL_COUNT) pi = 0;
+                pal = BG_PAL_SLOTS[pi];
+            } else if (a->palette2 && a->tile_pals && a->tile_pals[tile_idx]) {
+                pal = PAL_BG_IMAGE2;
+            }
             put_cell(scr,tx,ty, BG_IMAGE_BASE+tile_idx, pal,true);
         }
 }
 static void render_image_bg(const image_asset_t __far *a) {
     set_pal2(PAL_BG_TOP, 0x0111, col(g_bg_col1));
     set_pal2(PAL_BG_BOT, 0x0111, col(g_bg_col2));
-    if (a && a->tile_count) set_pal16(PAL_BG_IMAGE, a->palette);
-    if (a && a->palette2) set_pal16(PAL_BG_IMAGE2, a->palette2);
+    if (a && a->palettes && a->palette_count) {
+        uint8_t pal_count = a->palette_count;
+        if (pal_count > BG_PAL_COUNT) pal_count = BG_PAL_COUNT;
+        for (uint8_t i = 0; i < pal_count; i++) set_pal16(BG_PAL_SLOTS[i], a->palettes[i]);
+    } else {
+        if (a && a->tile_count) set_pal16(PAL_BG_IMAGE, a->palette);
+        if (a && a->palette2) set_pal16(PAL_BG_IMAGE2, a->palette2);
+    }
     render_image_bg_on(SCR1_PTR, a);
 }
+
+static const uint8_t __far *image_tile_ptr(const image_asset_t __far *a, uint16_t tile_idx) {
+    if (a->tile_chunks && a->chunk_tile_count) {
+        uint16_t chunk_idx = tile_idx / a->chunk_tile_count;
+        uint16_t chunk_off = tile_idx % a->chunk_tile_count;
+        return a->tile_chunks[chunk_idx] + (uint32_t)chunk_off * TILE_SIZE;
+    }
+    if (a->tiles2 && a->tiles2_start && tile_idx >= a->tiles2_start)
+        return a->tiles2 + (uint32_t)(tile_idx - a->tiles2_start) * TILE_SIZE;
+    return a->tiles + (uint32_t)tile_idx * TILE_SIZE;
+}
+
 static void clear_char_layer(void) {
     fill_region(SCR2_PTR,0,0,SCREEN_W,SCREEN_H,TILE_BLANK,PAL_TEXT,false);
 }
@@ -860,7 +913,7 @@ static void char_talk_finish(bool final_page) {
     if (final_page && g_talk_enabled && g_talk_blink_id != 0xFF && g_talk_blink_id < NUM_CHAR_ASSETS) {
         const image_asset_t __far *blink = &CHAR_ASSETS[g_talk_blink_id];
         wait_vblank_start();
-        for (uint16_t i=0;i<blink->tile_count;i++) wtb0f(CHAR2_BASE+i, blink->tiles+(uint32_t)i*TILE_SIZE);
+        for (uint16_t i=0;i<blink->tile_count;i++) wtb0f(CHAR2_BASE+i, image_tile_ptr(blink,i));
         g_loaded_char2 = g_talk_blink_id;
         g_blink_closed_id = g_talk_blink_id;
         g_blink_closed = 0;
@@ -1054,6 +1107,11 @@ static void do_ops(const flag_op_t __far *ops, uint8_t n) {
             case OP_SUB: *f-=ops[i].value; break;
             case OP_SET: *f =ops[i].value; break;
             case OP_TOGGLE: *f=!*f; break;
+            case OP_RAND: {
+                uint16_t max = (ops[i].value < 0) ? 0u : (uint16_t)ops[i].value;
+                *f = (int16_t)(rng_next() % (uint16_t)(max + 1u));
+                break;
+            }
         }
     }
 }
@@ -1360,8 +1418,14 @@ static void prepare_scene_visuals(const scene_t __far *s) {
     if (s->bg_image_id!=0xFF&&s->bg_image_id<NUM_BG_ASSETS) {
         cg_mark_seen(s->bg_image_id);
         const image_asset_t __far *bg = &BG_ASSETS[s->bg_image_id];
-        set_pal16(PAL_BG_IMAGE, bg->palette);
-        if (bg->palette2) set_pal16(PAL_BG_IMAGE2, bg->palette2);
+        if (bg->palettes && bg->palette_count) {
+            uint8_t pal_count = bg->palette_count;
+            if (pal_count > BG_PAL_COUNT) pal_count = BG_PAL_COUNT;
+            for (uint8_t i = 0; i < pal_count; i++) set_pal16(BG_PAL_SLOTS[i], bg->palettes[i]);
+        } else {
+            set_pal16(PAL_BG_IMAGE, bg->palette);
+            if (bg->palette2) set_pal16(PAL_BG_IMAGE2, bg->palette2);
+        }
         /* Configure palette cycling (only affects PAL_BG_IMAGE). */
         g_palcycle_enable = (s->pal_cycle_enable != 0 && s->pal_cycle_len >= 2 && s->pal_cycle_start < 16);
         if (g_palcycle_enable) {
@@ -1380,7 +1444,7 @@ static void prepare_scene_visuals(const scene_t __far *s) {
         }
         if (g_loaded_bg_id != s->bg_image_id) {
             for (uint16_t i=0;i<bg->tile_count;i++)
-                wtb1f(BG_IMAGE_BASE+i, bg->tiles+(uint32_t)i*TILE_SIZE);
+                wtb1f(BG_IMAGE_BASE+i, image_tile_ptr(bg,i));
             g_loaded_bg_id = s->bg_image_id;
         }
         render_image_bg_map_on(SCR1_PTR, bg);
@@ -1395,7 +1459,7 @@ static void prepare_scene_visuals(const scene_t __far *s) {
     if (s->fg_image_id!=0xFF&&s->fg_image_id<NUM_FG_ASSETS) {
         const image_asset_t __far *fg = &FG_ASSETS[s->fg_image_id];
         if (g_loaded_fg_id != s->fg_image_id) {
-            for (uint16_t i=0;i<fg->tile_count;i++) wtb0f(FG_BASE+i, fg->tiles+(uint32_t)i*TILE_SIZE);
+            for (uint16_t i=0;i<fg->tile_count;i++) wtb0f(FG_BASE+i, image_tile_ptr(fg,i));
             g_loaded_fg_id = s->fg_image_id;
         }
         render_foreground_map(fg);
@@ -1422,14 +1486,14 @@ static void prepare_scene_visuals(const scene_t __far *s) {
     if (s->char_id!=0xFF&&s->char_id<NUM_CHAR_ASSETS) {
         const image_asset_t __far *ch = &CHAR_ASSETS[s->char_id];
         if (g_loaded_char1 != s->char_id) {
-            for (uint16_t i=0;i<ch->tile_count;i++) wtb0f(CHAR1_BASE+i, ch->tiles+(uint32_t)i*TILE_SIZE);
+            for (uint16_t i=0;i<ch->tile_count;i++) wtb0f(CHAR1_BASE+i, image_tile_ptr(ch,i));
             g_loaded_char1 = s->char_id;
         }
         render_char_map(ch, s->char_pos, PAL_CHAR1, CHAR1_BASE);
         if ((s->char_anim == 5 || s->char_anim == 6 || s->char_anim == 7) && s->char2_pos == POS_NONE && s->char2_id != 0xFF && s->char2_id < NUM_CHAR_ASSETS) {
             const image_asset_t __far *blink = &CHAR_ASSETS[s->char2_id];
             if (g_loaded_char2 != s->char2_id) {
-                for (uint16_t i=0;i<blink->tile_count;i++) wtb0f(CHAR2_BASE+i, blink->tiles+(uint32_t)i*TILE_SIZE);
+                for (uint16_t i=0;i<blink->tile_count;i++) wtb0f(CHAR2_BASE+i, image_tile_ptr(blink,i));
                 g_loaded_char2 = s->char2_id;
             }
             g_blink_open_id = s->char_id;
@@ -1447,7 +1511,7 @@ static void prepare_scene_visuals(const scene_t __far *s) {
     if (s->char2_id!=0xFF&&s->char2_id<NUM_CHAR_ASSETS && !((s->char_anim == 5 || s->char_anim == 6 || s->char_anim == 7) && s->char2_pos == POS_NONE)) {
         const image_asset_t __far *ch2 = &CHAR_ASSETS[s->char2_id];
         if (g_loaded_char2 != s->char2_id) {
-            for (uint16_t i=0;i<ch2->tile_count;i++) wtb0f(CHAR2_BASE+i, ch2->tiles+(uint32_t)i*TILE_SIZE);
+            for (uint16_t i=0;i<ch2->tile_count;i++) wtb0f(CHAR2_BASE+i, image_tile_ptr(ch2,i));
             g_loaded_char2 = s->char2_id;
         }
         render_char_map(ch2, s->char2_pos, PAL_CHAR2, CHAR2_BASE);

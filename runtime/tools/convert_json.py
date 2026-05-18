@@ -57,7 +57,7 @@ NODE_TYPE = {
     'investigation': 'NODE_INVESTIGATION',
     'end': 'NODE_END',
 }
-OP_C = {'add': 'OP_ADD', 'sub': 'OP_SUB', 'set': 'OP_SET', 'toggle': 'OP_TOGGLE'}
+OP_C = {'add': 'OP_ADD', 'sub': 'OP_SUB', 'set': 'OP_SET', 'toggle': 'OP_TOGGLE', 'rand': 'OP_RAND'}
 COND_C = {
     '==': 'COND_EQ', '!=': 'COND_NEQ',
     '>': 'COND_GT', '>=': 'COND_GTE',
@@ -173,6 +173,10 @@ def to_wsc_12bit(rgb):
     g4 = min(15, round(g / 17))
     b4 = min(15, round(b / 17))
     return (r4 << 8) | (g4 << 4) | b4
+
+def from_wsc_12bit(c: int) -> tuple[int, int, int]:
+    """Expand a WSC RGB444 palette entry back to RGB888 for matching."""
+    return (((c >> 8) & 0xF) * 17, ((c >> 4) & 0xF) * 17, (c & 0xF) * 17)
 
 
 NOTE_RE = re.compile(r'^([A-G])([#b]?)(-?\d+)$')
@@ -385,14 +389,15 @@ def quantize_rgb_entries_from_pixels(pixels: list[tuple[int, int, int]], colors:
         off = i * 3
         if off + 2 < len(pal_raw):
             rgb = tuple(pal_raw[off:off + 3])
-            rgb_entries.append(rgb)
-            wsc_entries.append(to_wsc_12bit(rgb))
+            wsc = to_wsc_12bit(rgb)
+            rgb_entries.append(from_wsc_12bit(wsc))
+            wsc_entries.append(wsc)
         else:
             rgb_entries.append((0, 0, 0))
             wsc_entries.append(0)
     return rgb_entries, wsc_entries
 
-def nearest_palette_index(rgb: tuple[int, int, int], palette: list[tuple[int, int, int]]) -> int:
+def nearest_palette_index_raw(rgb: tuple[int, int, int], palette: list[tuple[int, int, int]]) -> int:
     best_i = 0
     best_d = 1 << 62
     r, g, b = rgb
@@ -401,7 +406,10 @@ def nearest_palette_index(rgb: tuple[int, int, int], palette: list[tuple[int, in
         if d < best_d:
             best_d = d
             best_i = i
-    return min(best_i + 1, 15)
+    return min(best_i, 15)
+
+def nearest_palette_index(rgb: tuple[int, int, int], palette: list[tuple[int, int, int]]) -> int:
+    return min(nearest_palette_index_raw(rgb, palette) + 1, 15)
 
 def image_to_char_tiles_dual(img: Image.Image, mode: str = 'top-bottom'):
     """Character conversion using two per-tile palettes.
@@ -687,9 +695,89 @@ def image_to_bg_tiles_dual(img: Image.Image, mode: str = 'top-bottom'):
             for yy in range(8):
                 row = (ty * 8 + yy) * w
                 for xx in range(8):
-                    pixels.append(nearest_palette_index(pix[row + tx * 8 + xx], pal_rgb) - 1)
+                    pixels.append(nearest_palette_index_raw(pix[row + tx * 8 + xx], pal_rgb))
             tile_bytes.extend(pack_tile_packed_4bpp(pixels))
     return w_tiles, h_tiles, pal0[:16], pal1[:16], bytes(tile_pals), bytes(tile_bytes)
+
+def image_to_bg_tiles_multi(img: Image.Image, palette_count: int = 4):
+    """Background conversion using several per-tile palettes.
+
+    Commercial WSC VNs get rich color by assigning a palette per 8x8 tile. This
+    clusters tiles by their average color and builds one 16-color palette per
+    cluster. The runtime maps these to BG_PAL_SLOTS.
+    """
+    rgb = fit_cover_exact(img, MAX_BG_W, MAX_BG_H).convert('RGB')
+    w, h = rgb.size
+    w_tiles, h_tiles = w // 8, h // 8
+    pix = list(rgb.getdata())
+    palette_count = max(1, min(8, palette_count))
+
+    tile_features = []
+    for ty in range(h_tiles):
+        for tx in range(w_tiles):
+            total = [0, 0, 0]
+            hist = {}
+            for yy in range(8):
+                row = (ty * 8 + yy) * w
+                for xx in range(8):
+                    r, g, b = pix[row + tx * 8 + xx]
+                    total[0] += r
+                    total[1] += g
+                    total[2] += b
+                    q = ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4)
+                    hist[q] = hist.get(q, 0) + 1
+            avg = (total[0] // 64, total[1] // 64, total[2] // 64)
+            top = sorted(hist.items(), key=lambda kv: kv[1], reverse=True)[:3]
+            dom = []
+            for q, count in top:
+                r4 = (q >> 8) & 0xF
+                g4 = (q >> 4) & 0xF
+                b4 = q & 0xF
+                dom.extend([r4 * 17, g4 * 17, b4 * 17, count * 4])
+            while len(dom) < 12:
+                dom.extend([0, 0, 0, 0])
+            tile_features.append((*avg, *dom[:12]))
+    tile_groups = _cluster_tile_averages(tile_features, palette_count)
+
+    groups = [[] for _ in range(palette_count)]
+    for ty in range(h_tiles):
+        for tx in range(w_tiles):
+            group = tile_groups[ty * w_tiles + tx]
+            for yy in range(8):
+                row = (ty * 8 + yy) * w
+                for xx in range(8):
+                    groups[group].append(pix[row + tx * 8 + xx])
+
+    palettes_rgb = []
+    palettes = []
+    fallback_rgb = [(0, 0, 0)] * 16
+    fallback_pal = [0] * 16
+    for group_pixels in groups:
+        pal_rgb, pal = quantize_rgb_entries_from_pixels(group_pixels, 16)
+        if not pal_rgb:
+            pal_rgb, pal = fallback_rgb[:], fallback_pal[:]
+        else:
+            fallback_rgb, fallback_pal = pal_rgb[:], pal[:]
+        while len(pal) < 16:
+            pal.append(0)
+            pal_rgb.append((0, 0, 0))
+        palettes_rgb.append(pal_rgb[:16])
+        palettes.append(pal[:16])
+
+    tile_bytes = bytearray()
+    tile_pals = bytearray()
+    for ty in range(h_tiles):
+        for tx in range(w_tiles):
+            tile_group = tile_groups[ty * w_tiles + tx]
+            pal_rgb = palettes_rgb[tile_group]
+            tile_pals.append(tile_group)
+            pixels = []
+            for yy in range(8):
+                row = (ty * 8 + yy) * w
+                for xx in range(8):
+                    pixels.append(nearest_palette_index_raw(pix[row + tx * 8 + xx], pal_rgb))
+            tile_bytes.extend(pack_tile_packed_4bpp(pixels))
+    return w_tiles, h_tiles, palettes[0][:16], None, bytes(tile_pals), bytes(tile_bytes), palettes[:palette_count]
 
 def _cluster_tile_averages(tile_avgs: list[tuple[int, int, int]], k: int) -> list[int]:
     if not tile_avgs:
@@ -697,16 +785,17 @@ def _cluster_tile_averages(tile_avgs: list[tuple[int, int, int]], k: int) -> lis
     k = max(1, min(k, len(tile_avgs)))
     ordered = sorted(tile_avgs, key=lambda c: c[0] + c[1] + c[2])
     centers = [ordered[(i * (len(ordered) - 1)) // max(1, k - 1)] for i in range(k)]
+    dims = len(tile_avgs[0])
     groups = [0] * len(tile_avgs)
     for _ in range(8):
         buckets = [[] for _ in range(k)]
         for idx, c in enumerate(tile_avgs):
-            best = min(range(k), key=lambda i: sum((c[j] - centers[i][j]) * (c[j] - centers[i][j]) for j in range(3)))
+            best = min(range(k), key=lambda i: sum((c[j] - centers[i][j]) * (c[j] - centers[i][j]) for j in range(dims)))
             groups[idx] = best
             buckets[best].append(c)
         for i, bucket in enumerate(buckets):
             if bucket:
-                centers[i] = tuple(sum(c[j] for c in bucket) // len(bucket) for j in range(3))
+                centers[i] = tuple(sum(c[j] for c in bucket) // len(bucket) for j in range(dims))
     return groups
 
 def image_to_fg_tiles_multi(img: Image.Image, mode: str = 'auto-tile', group_imgs: list[Image.Image] | None = None):
@@ -736,10 +825,11 @@ def image_to_fg_tiles_multi(img: Image.Image, mode: str = 'auto-tile', group_img
     elif mode == 'left-right':
         tile_groups = [min(MAX_FG_PALETTES - 1, (tx * MAX_FG_PALETTES) // max(1, w_tiles)) for _ty in range(h_tiles) for tx in range(w_tiles)]
     else:
-        tile_avgs = []
+        tile_features = []
         for ty in range(h_tiles):
             for tx in range(w_tiles):
                 total = [0, 0, 0]
+                hist = {}
                 count = 0
                 for yy in range(8):
                     row = (ty * 8 + yy) * w
@@ -749,9 +839,24 @@ def image_to_fg_tiles_multi(img: Image.Image, mode: str = 'auto-tile', group_img
                             total[0] += r
                             total[1] += g
                             total[2] += b
+                            q = ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4)
+                            hist[q] = hist.get(q, 0) + 1
                             count += 1
-                tile_avgs.append((total[0] // count, total[1] // count, total[2] // count) if count else (0, 0, 0))
-        tile_groups = _cluster_tile_averages(tile_avgs, MAX_FG_PALETTES)
+                if count:
+                    avg = (total[0] // count, total[1] // count, total[2] // count)
+                    top = sorted(hist.items(), key=lambda kv: kv[1], reverse=True)[:3]
+                    dom = []
+                    for q, q_count in top:
+                        r4 = (q >> 8) & 0xF
+                        g4 = (q >> 4) & 0xF
+                        b4 = q & 0xF
+                        dom.extend([r4 * 17, g4 * 17, b4 * 17, q_count * 4])
+                    while len(dom) < 12:
+                        dom.extend([0, 0, 0, 0])
+                    tile_features.append((*avg, *dom[:12]))
+                else:
+                    tile_features.append((0, 0, 0, *([0] * 12)))
+        tile_groups = _cluster_tile_averages(tile_features, MAX_FG_PALETTES)
 
     groups = [[] for _ in range(MAX_FG_PALETTES)]
     for frame in fitted_group:
@@ -817,6 +922,8 @@ def image_to_tiles(img: Image.Image, kind: str, palette_mode: str = 'top-bottom'
     """Returns (w_tiles, h_tiles, palette[16], palette2/None, tile_pals/None, tile_bytes[, palettes])."""
     if kind == 'bg':
         img = fit_cover_exact(img, MAX_BG_W, MAX_BG_H)
+        if palette_mode in ('auto-tile', 'auto-tile-8'):
+            return image_to_bg_tiles_multi(img, 8 if palette_mode == 'auto-tile-8' else 4)
         if palette_mode in ('top-bottom', 'left-right', 'auto-tile'):
             return image_to_bg_tiles_dual(img, palette_mode)
         # Fast path: already indexed and exact size
@@ -893,12 +1000,16 @@ def convert_asset(asset: dict, kind: str, shared_groups: dict | None = None) -> 
     img = Image.open(io.BytesIO(raw))
 
     if kind == 'bg':
-        w_tiles, h_tiles, palette, palette2, tile_pals, tiles = image_to_tiles(img, 'bg', asset.get('paletteMode', 'top-bottom'))
+        bg_pack = image_to_tiles(img, 'bg', asset.get('paletteMode', 'top-bottom'))
+        w_tiles, h_tiles, palette, palette2, tile_pals, tiles = bg_pack[:6]
+        palettes = bg_pack[6] if len(bg_pack) > 6 else None
         tile_count = w_tiles * h_tiles
         if tile_count > MAX_BG_TILES:
             raise ValueError(
                 f'background "{asset.get("name", "?")}" is too large '
                 f'({tile_count} tiles, max {MAX_BG_TILES})')
+        return AssetPack(asset.get('id', ''), w_tiles, h_tiles,
+                         tile_count, palette, palette2, tile_pals, tiles, palettes)
     elif kind == 'fg':
         shared_assets = (shared_groups or {}).get(asset.get('id'))
         group_imgs = []
@@ -1284,7 +1395,7 @@ def emit(project, out_dir):
     def emit_assets(arr, prefix, allow_transparency):
         if not arr:
             W(f'const image_asset_t __far {prefix}[1] = '
-              f'{{ {{ 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0 }} }};')
+              f'{{ {{ 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, 0 }} }};')
             W('')
             return
 
@@ -1330,11 +1441,33 @@ def emit(project, out_dir):
                 for mpal_name in multi_names:
                     W(f'  {mpal_name},')
                 W('};'  )
-            W(f'static const uint8_t __far {tiles_name}[] = {{')
-            for j in range(0, len(pack.tiles), 16):
-                chunk = pack.tiles[j:j + 16]
-                W('  ' + ', '.join(f'0x{b:02X}' for b in chunk) + ',')
-            W('};'  )
+            chunk_tile_count = 0
+            if prefix in ('BG_ASSETS', 'FG_ASSETS') and pack.tile_count >= 2 and pack.h_tiles >= 2:
+                chunk_rows = 1
+                chunk_tile_count = pack.w_tiles * chunk_rows
+            if chunk_tile_count:
+                chunk_names = []
+                for ci, start_tile in enumerate(range(0, pack.tile_count, chunk_tile_count)):
+                    end_tile = min(pack.tile_count, start_tile + chunk_tile_count)
+                    start_byte = start_tile * 32
+                    end_byte = end_tile * 32
+                    chunk_name = f'{tiles_name}_{ci}'
+                    chunk_names.append(chunk_name)
+                    W(f'static const uint8_t __far {chunk_name}[] = {{')
+                    for j in range(start_byte, end_byte, 16):
+                        chunk = pack.tiles[j:j + 16]
+                        W('  ' + ', '.join(f'0x{b:02X}' for b in chunk) + ',')
+                    W('};'  )
+                W(f'static const uint8_t __far * const __far {tiles_name}_chunks[] = {{')
+                for chunk_name in chunk_names:
+                    W(f'  {chunk_name},')
+                W('};'  )
+            else:
+                W(f'static const uint8_t __far {tiles_name}[] = {{')
+                for j in range(0, len(pack.tiles), 16):
+                    chunk = pack.tiles[j:j + 16]
+                    W('  ' + ', '.join(f'0x{b:02X}' for b in chunk) + ',')
+                W('};'  )
             W('')
 
         W(f'const image_asset_t __far {prefix}[{len(packs)}] = {{')
@@ -1343,10 +1476,20 @@ def emit(project, out_dir):
             pal2_name  = f'{prefix.lower()}_pal2_{i}' if pack.palette2 else 'NULL'
             pals_name  = f'{prefix.lower()}_tile_pals_{i}' if pack.tile_pals else 'NULL'
             tiles_name = f'{prefix.lower()}_tiles_{i}'
+            tiles2_name = 'NULL'
+            split_tile = 0
+            chunks_name = 'NULL'
+            chunk_tile_count = 0
+            if prefix in ('BG_ASSETS', 'FG_ASSETS') and pack.tile_count >= 2 and pack.h_tiles >= 2:
+                chunk_rows = 1
+                chunk_tile_count = pack.w_tiles * chunk_rows
+                chunks_name = f'{tiles_name}_chunks'
+                tiles_name = f'{tiles_name}_0'
             mpals_name = f'{prefix.lower()}_mpals_{i}' if pack.palettes else 'NULL'
             mpals_count = len(pack.palettes) if pack.palettes else 0
             W(f'  {{ {pack.w_tiles}, {pack.h_tiles}, {pack.tile_count}, '
-              f'{pal_name}, {pal2_name}, {pals_name}, {tiles_name}, {mpals_name}, {mpals_count} }},')
+              f'{pal_name}, {pal2_name}, {pals_name}, {tiles_name}, {mpals_name}, {mpals_count}, '
+              f'{tiles2_name}, {split_tile}, {chunks_name}, {chunk_tile_count} }},')
         W('};'  )
         W('')
         return packs
@@ -1582,10 +1725,10 @@ def emit(project, out_dir):
             W('  ' + ', '.join(f'0x{b:02X}' for b in chunk) + ',')
         W('};')
         W('const image_asset_t __far SAVELOAD_BG = {')
-        W(f'  {w_tiles}, {h_tiles}, {tile_count}, saveload_bg_pal, NULL, NULL, saveload_bg_tiles, NULL, 0')
+        W(f'  {w_tiles}, {h_tiles}, {tile_count}, saveload_bg_pal, NULL, NULL, saveload_bg_tiles, NULL, 0, NULL, 0, NULL, 0')
         W('};')
     else:
-        W('const image_asset_t __far SAVELOAD_BG = { 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0 };')
+        W('const image_asset_t __far SAVELOAD_BG = { 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, 0 };')
     W('')
 
     # ── Flag op arrays (interned / deduplicated) ──

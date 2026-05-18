@@ -27,6 +27,7 @@
 #define OP_SUB    1
 #define OP_SET    2
 #define OP_TOGGLE 3
+#define OP_RAND   4
 
 /* Condition ops */
 #define COND_EQ   0
@@ -64,7 +65,7 @@
 /* Flag operation (used in scenes and choices) */
 typedef struct {
     uint8_t flag_idx;
-    uint8_t op;          // OP_ADD / OP_SUB / OP_SET / OP_TOGGLE
+    uint8_t op;          // OP_ADD / OP_SUB / OP_SET / OP_TOGGLE / OP_RAND
     int16_t value;
 } flag_op_t;
 
@@ -197,6 +198,10 @@ typedef struct {
     const uint8_t __far *tiles;      /* tile_count * 32 bytes, packed 4bpp */
     const uint16_t __far * const __far *palettes; /* optional multi-palette table */
     uint8_t palette_count;
+    const uint8_t __far *tiles2;     /* optional continuation chunk for large images */
+    uint16_t tiles2_start;           /* first tile index stored in tiles2; 0 = disabled */
+    const uint8_t __far * const __far *tile_chunks; /* optional fixed-size tile chunks */
+    uint16_t chunk_tile_count;       /* tiles per chunk when tile_chunks is used */
 } image_asset_t;
 
 typedef struct {
